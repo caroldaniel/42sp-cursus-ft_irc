@@ -3,33 +3,21 @@
 /*                                                        :::      ::::::::   */
 /*   Server.hpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: user42 <user42@student.42.fr>              +#+  +:+       +#+        */
+/*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 12:03:43 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/06 22:07:28 by user42           ###   ########.fr       */
+/*   Updated: 2024/03/08 12:07:21 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef SERVER_HPP
 # define SERVER_HPP
 
-# include <iostream>
-# include <cstdlib>
-# include <cstring>
-# include <unistd.h>
-# include <fcntl.h>
-# include <sys/types.h>
-# include <sys/socket.h>
-# include <netinet/in.h>
-# include <stdexcept>
-# include <cerrno>
-# include <poll.h>
-# include <vector>
-
 /*
 ** Libraries
 */
 # include "../utils/utils.hpp"
+# include "../Client/Client.hpp"
 
 /*
 ** Server class
@@ -39,18 +27,23 @@ class Server {
 private:
 
     // Attributes
-    int         _port;
-    std::string _password;
-    int         _socket;
-    bool        _running;
+    bool                    _running;
+    int                     _socket;
+    
+    const std::string       _port;
+    const std::string       _password;
+    const std::string       _hostname;
+
+    std::vector<pollfd>     _pollfds;
+    std::map<int, Client *> _clients;
 
     // Private methods
-    int         _accept_connection(void);
+    void         _on_client_connection(void);
 
 public:
 
     // Constructors
-    Server(int port, std::string password);
+    Server(std::string port, std::string password);
     // Copy constructor
     Server(const Server &other);
     // Destructor
