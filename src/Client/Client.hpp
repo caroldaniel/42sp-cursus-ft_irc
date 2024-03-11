@@ -38,6 +38,7 @@ class Client
         // Attributes
         int         _socket;
         int         _port;
+	bool        _autent;
 
         std::string _nickname;
         std::string _username;
@@ -59,10 +60,12 @@ class Client
         std::string get_realname(void) const;
         std::string get_hostname(void) const;
         std::string get_password(void) const;
+        bool 	    get_autent(void) const;
         void set_nickname(const std::string nickname);
         void set_username(const std::string username);
         void set_realname(const std::string realname);
         void set_password(const std::string realname);
+        void set_autent(const bool autent);
 };
 
 #endif

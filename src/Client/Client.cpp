@@ -16,7 +16,7 @@
 /*                      Constructors and Destructor                           */
 /******************************************************************************/
 
-Client::Client(int fd, int port, const std::string &hostname) : _socket(fd), _port(port), _nickname(""), _username(""), _realname(""), _hostname(hostname) {
+Client::Client(int fd, int port, const std::string &hostname) : _socket(fd), _port(port), _autent(0), _nickname(""), _username(""), _realname(""), _hostname(hostname) {
     std::cout << "Client created" << std::endl;
     return ;
 }
@@ -75,6 +75,10 @@ std::string Client::get_password(void) const {
     return _password;
 }
 
+bool Client::get_autent(void) const {
+    return _autent;
+}
+
 void Client::set_nickname(const std::string nickname) {
     this->_nickname = nickname;
 }
@@ -90,3 +94,8 @@ void Client::set_realname(const std::string realname) {
 void Client::set_password(const std::string password) {
     this->_password = password;
 }
+
+void Client::set_autent(const bool autent) {
+    this->_autent = autent;
+}
+
