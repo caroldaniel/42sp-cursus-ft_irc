@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 12:03:43 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/08 12:07:21 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/10 23:36:42 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,7 @@
 */
 # include "../utils/utils.hpp"
 # include "../Client/Client.hpp"
+# include "../Parser/Parser.hpp"
 
 /*
 ** Server class
@@ -37,8 +38,6 @@ private:
     std::vector<pollfd>     _pollfds;
     std::map<int, Client *> _clients;
 
-    // Private methods
-    void         _on_client_connection(void);
 
 public:
 
@@ -51,9 +50,18 @@ public:
     // Assignment operator
     Server &operator=(const Server &other);
 
-    // Member functions
-    void create_socket(void);
-    void start(void);
+    // Getters
+    Client  *get_client(int client_fd);
+
+    // Member functions on Client's actions
+    void    on_client_connect(void);
+    void    on_client_disconnect(int client_fd);
+    void    on_client_message(int client_fd, std::string message);
+
+    // Member functions on Server's actions
+    void    create_socket(void);
+    void    start(void);
+    void    authenticate_client(int client_fd, std::string password);
 };
 
 #endif

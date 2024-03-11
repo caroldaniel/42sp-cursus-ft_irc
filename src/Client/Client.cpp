@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 14:25:23 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/08 12:02:16 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/10 23:23:45 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 /*                      Constructors and Destructor                           */
 /******************************************************************************/
 
-Client::Client(int fd, int port, const std::string &hostname) : _socket(fd), _port(port), _nickname(""), _username(""), _realname(""), _hostname(hostname) {
+Client::Client(std::string server_hostname, int fd, int port, std::string password, const std::string &hostname) : _server_hostname(server_hostname), _socket(fd), _port(port), _password(password), _authenticated(false), _username(""), _realname(""), _hostname(hostname) {
     std::cout << "Client created" << std::endl;
     return ;
 }
@@ -44,7 +44,36 @@ Client &Client::operator=(const Client &other) {
 }
 
 /******************************************************************************/
-/*                         Getters and Setters                                */
+/*                             Member functions                               */
+/******************************************************************************/
+
+void        Client::disconnect(void) {
+    if (_socket != -1) {
+        close(_socket);
+        _socket = -1;
+        std::cout << _hostname << ":" << _port << " has disconnected" << std::endl;
+    }
+    return ;
+}
+
+void        Client::authenticate(std::string password) {
+    if (password != _password) {
+        throw std::runtime_error("Invalid password");
+    }
+    _authenticated = true;
+    return ;
+}
+
+void        Client::send_reply(std::string code, std::string message) {
+    std::stringstream ss;
+    ss << ":" << _server_hostname << " " << code << " " << _nickname << " :" << message << "\r\n";
+    std::string reply = ss.str();
+    send(_socket, reply.c_str(), reply.length(), 0);
+    return ;
+}
+
+/******************************************************************************/
+/*                                 Getters                                    */
 /******************************************************************************/
 
 int         Client::get_socket(void) const {
@@ -69,4 +98,27 @@ std::string Client::get_realname(void) const {
 
 std::string Client::get_hostname(void) const {
     return _hostname;
+}
+
+bool        Client::is_authenticated(void) const {
+    return _authenticated;
+}
+
+/******************************************************************************/
+/*                                 Setters                                    */
+/******************************************************************************/
+
+void        Client::set_nickname(const std::string &nickname) {
+    _nickname = nickname;
+    return ;
+}
+
+void        Client::set_username(const std::string &username) {
+    _username = username;
+    return ;
+}
+
+void        Client::set_realname(const std::string &realname) {
+    _realname = realname;
+    return ;
 }

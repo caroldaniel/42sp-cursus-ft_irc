@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 12:03:38 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/08 12:12:52 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/10 23:15:54 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,7 @@
 /*                      Constructors and Destructor                           */
 /******************************************************************************/
 
-Server::Server(std::string port, std::string password) : _running(false), _socket(-1), _port(port), _password(password), _hostname("localhost") {
-    std::cout << "Server created" << std::endl;
+Server::Server(std::string port, std::string password) : _running(false), _socket(-1), _port(port), _password(password), _hostname("127.0.0.1") {
     return ;
 }
 
@@ -30,14 +29,13 @@ Server::~Server(void) {
     if (_socket != -1) {
         close(_socket);
     }
-    for (size_t i = 0; i < _pollfds.size(); i++) {
-        close(_pollfds[i].fd);
-    }
     // Delete all clients from the map using c++98 syntax
     for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++) {
         delete it->second;
     }
-    std::cout << "Server destroyed" << std::endl;
+    for (size_t i = 0; i < _pollfds.size(); i++) {
+        close(_pollfds[i].fd);
+    }
 }
 
 /******************************************************************************/
@@ -50,11 +48,23 @@ Server &Server::operator=(const Server &other) {
 }
 
 /******************************************************************************/
-/*                         Private member functions                           */
+/*                                 Getters                                    */
+/******************************************************************************/
+
+Client  *Server::get_client(int client_fd) {
+    std::map<int, Client *>::iterator it = _clients.find(client_fd);
+    if (it == _clients.end()) {
+        throw std::runtime_error("Client not found");
+    }
+    return it->second;
+}
+
+/******************************************************************************/
+/*                  Member functions on Client's actions                      */
 /******************************************************************************/
 
 
-void Server::_on_client_connection(void) {
+void Server::on_client_connect(void) {
     // Prepare the client address structure    
     sockaddr_in  client_address;
     socklen_t    client_address_size = sizeof(client_address);
@@ -65,7 +75,7 @@ void Server::_on_client_connection(void) {
     if (client_socket == -1) {
         throw std::runtime_error(std::string(strerror(errno)));
     }
-    addPollfd(_pollfds, client_socket, POLLIN);
+    addPollfd(_pollfds, client_socket, POLLIN | POLLHUP);
 
     // Get client information
     char hostname[NI_MAXHOST];
@@ -74,11 +84,39 @@ void Server::_on_client_connection(void) {
         throw std::runtime_error(std::string(gai_strerror(result)));
     }
     
-    Client  *client = new Client(client_socket, ntohs(client_address.sin_port), hostname);  
+    Client  *client = new Client(_hostname, client_socket, ntohs(client_address.sin_port), _password, hostname);  
      
     _clients.insert(std::make_pair(client_socket, client));
     std::cout << client->get_hostname() << ":" << client->get_port() << " has connected" << std::endl;
     
+    return ;
+}
+
+void Server::on_client_disconnect(int client_fd) {
+    // Remove the client from the map
+    std::map<int, Client *>::iterator it = _clients.find(client_fd);
+    if (it != _clients.end()) {
+        it->second->disconnect();
+        delete it->second;
+        _clients.erase(it);
+    }
+    // Remove the client from the vector
+    for (size_t i = 0; i < _pollfds.size(); i++) {
+        if (_pollfds[i].fd == client_fd) {
+            _pollfds.erase(_pollfds.begin() + i);
+            break;
+        }
+    }
+    return ;
+}
+
+void Server::on_client_message(int client_fd, std::string message) {
+    // Parse line by line
+    std::istringstream iss(message); 
+    std::string line;
+    while (std::getline(iss, line)) {
+        
+    }
     return ;
 }
 
@@ -125,8 +163,14 @@ void Server::create_socket(void) {
 void Server::start(void) {
     // Set the server as running
     _running = true;
-    std::cout << "Server started" << std::endl;
-    
+
+    // Create the server socket
+    try {
+        create_socket();
+    } catch (std::exception &e) {
+        throw std::runtime_error(std::string(strerror(errno)));
+    }
+     
     // Add the server socket to the vector
     addPollfd(_pollfds, _socket, POLLIN);
 
@@ -150,27 +194,33 @@ void Server::start(void) {
         // Check if the server socket has events
         if (_pollfds[0].revents & POLLIN) {
             try {
-                _on_client_connection();
+                on_client_connect();
             } catch (std::exception &e) {
                 throw std::runtime_error("Cannot accept client connection: " + std::string(strerror(errno)));
             }
         }
-        
+
         // Check if the STDIN has received data and, if so, if the data is "exit" or an EOF
         if (_pollfds[1].revents & POLLIN) {
             // read from STDIN
             char buffer[1024];
             int bytes_received = read(STDIN_FILENO, buffer, sizeof(buffer));
             if (bytes_received == -1) {
-                throw std::runtime_error("Error reading from STDIN: " + std::string(strerror(errno)));
+                throw std::runtime_error("Cannot read from STDIN: " + std::string(strerror(errno)));
             }
             if ((bytes_received == 0) || (std::string(buffer, bytes_received) == "exit\n")) {
                 _running = false;
             }
         }
         
-        // Loop through the client sockets
         for (size_t i = 2; i < _pollfds.size(); i++) {
+            
+            // If the client socket disconnected, remove it
+            if ((_pollfds[i].revents & POLLHUP) == POLLHUP) {
+                on_client_disconnect(_pollfds[i].fd);
+                continue;
+            }
+            
             // If the client socket has events, receive data
             if ((_pollfds[i].revents & POLLIN) == POLLIN) {
         
@@ -179,19 +229,30 @@ void Server::start(void) {
                 
                 // Check for errors in the recv function
                 if (bytes_received == -1) {
-                    throw std::runtime_error("Error receiving data from client: " + std::string(strerror(errno)));
+                    throw std::runtime_error("Cannot receive data from client: " + std::string(strerror(errno)));
                 }
 
                 // If the client socket is closed, remove it from the vector
                 if (bytes_received == 0) {
-                    close(_pollfds[i].fd);
-                    _pollfds.erase(_pollfds.begin() + i);
+                    on_client_disconnect(_pollfds[i].fd);
                     continue;
                 }
 
                 // Print the received data
-                std::cout << "Received: " << std::string(buffer, bytes_received) << std::endl;
+                on_client_message(_pollfds[i].fd, std::string(buffer, bytes_received));
             }
         }
     }
+}
+
+void Server::authenticate_client(int client_fd, std::string password) {
+    std::map<int, Client *>::iterator it = _clients.find(client_fd);
+    if (it != _clients.end()) {
+        try {
+            it->second->authenticate(password);
+        } catch (std::exception &e) {
+            throw std::runtime_error("Cannot authenticate client: " + std::string(e.what()));
+        }
+    }
+    return ;
 }
