@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 14:25:23 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/12 12:07:05 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/12 16:04:48 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ void        Client::authenticate(std::string password) {
     return ;
 }
 
-void        Client::send_reply(std::string code, std::string command, std::string message) {
+void        Client::reply(std::string code, std::string command, std::string message) {
     // Concatenate the message and send it to the client
     std::string reply;
     
@@ -75,6 +75,14 @@ void        Client::send_reply(std::string code, std::string command, std::strin
         reply = ":" + _server_hostname + SPACE + code + SPACE + _nickname + SPACE + command + SPACE + message + CRLF;
     }
     std::cout << "Sending reply: " << reply << std::endl;
+    send(_socket, reply.c_str(), reply.length(), 0);
+    return ;
+}
+
+void        Client::broadcast(Client *sender, std::string target, std::string message) {
+    // Concatenate the message and send it to the client
+    std::string reply = ":" + sender->get_nickname() + "!" + sender->get_username() + "@" + sender->get_hostname() + SPACE + "PRIVMSG" + SPACE + target + SPACE + ":" + message + CRLF;
+    std::cout << "Broadcasting: " << reply << std::endl;
     send(_socket, reply.c_str(), reply.length(), 0);
     return ;
 }

@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 23:26:36 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/12 12:00:36 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/12 16:42:00 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 /*                         Constructors and Destructor                        */
 /******************************************************************************/
 
-Quit::Quit(void) : Command("QUIT") {
+Quit::Quit(Server *server) : Command("QUIT", server) {
     return ;
 }
 
@@ -31,9 +31,8 @@ Quit::~Quit(void) {
 void    Quit::invoke(Client *client, Message *message) {
     // Placeholder for message parameter before broadcast function is ready
     message = message;
-    
     // Send goodbye message to client
-    client->send_reply(RPL_QUIT, _name, ":Thank you for using the IRC Network, " + client->get_nickname() + ". Goodbye!");
+    client->reply(RPL_QUIT, _name, ":Thank you for using the IRC Network, " + client->get_nickname() + ". Goodbye!");
     client->disconnect();
     return ;
 }

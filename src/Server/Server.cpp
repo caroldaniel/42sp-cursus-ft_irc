@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 12:03:38 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/12 12:08:51 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/12 16:51:35 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,10 +17,12 @@
 /******************************************************************************/
 
 Server::Server(std::string port, std::string password) : _running(false), _socket(-1), _port(port), _password(password), _hostname("127.0.0.1") {
-    _commands["USER"] = new User();
-    _commands["PASS"] = new Pass();
-    _commands["NICK"] = new Nick();
-    _commands["QUIT"] = new Quit();
+    _commands["USER"] = new User(this);
+    _commands["PASS"] = new Pass(this);
+    _commands["NICK"] = new Nick(this);
+    _commands["QUIT"] = new Quit(this);
+    _commands["LIST"] = new List(this);
+    _commands["JOIN"] = new Join(this);
     return ;
 }
 
@@ -44,6 +46,12 @@ Server::~Server(void) {
     for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++) {
         delete it->second;
     }
+
+    // Delete all channels from the vector
+    for (size_t i = 0; i < _channels.size(); i++) {
+        delete _channels[i];
+    }
+    
     // Delete commands
     for (std::map<std::string, Command *>::iterator it = _commands.begin(); it != _commands.end(); it++) {
         delete it->second;
@@ -70,6 +78,19 @@ Client  *Server::get_client(int client_fd) {
         throw std::runtime_error("Client not found");
     }
     return it->second;
+}
+
+Channel *Server::get_channel(std::string name) {
+    for (size_t i = 0; i < _channels.size(); i++) {
+        if (_channels[i]->get_name() == name) {
+            return _channels[i];
+        }
+    }
+    return NULL;
+}
+
+std::vector<Channel *> Server::list_channels(void) {
+    return _channels;
 }
 
 /******************************************************************************/
@@ -133,12 +154,8 @@ void Server::on_client_message(int client_fd, std::string message) {
     while (std::getline(iss, line)) {
         try {
             msg = new Message(line);
-            std::cout << "Command: " << msg->get_command() << std::endl;
-            for (size_t i = 0; i < msg->get_params().size(); i++) {
-                std::cout << "Param " << i << ": " << msg->get_params()[i] << std::endl;
-            }
             if (_commands.find(msg->get_command()) == _commands.end())
-                get_client(client_fd)->send_reply(ERR_UNKNOWNCOMMAND, msg->get_command(), ":Unknown command");
+                get_client(client_fd)->reply(ERR_UNKNOWNCOMMAND, msg->get_command(), ":Unknown command");
             else
                 _commands[msg->get_command()]->invoke(get_client(client_fd), msg);
             delete msg;
@@ -186,6 +203,11 @@ void Server::create_socket(void) {
     if (listen(_socket, 5) == -1) {
         throw std::runtime_error("Error listening on server socket");
     }
+    return ;
+}
+
+void Server::add_channel(Channel *channel) {
+    _channels.push_back(channel);
     return ;
 }
 

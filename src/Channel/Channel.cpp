@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 09:47:16 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/12 09:53:22 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/12 16:02:14 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 /*                      Constructors and Destructor                           */
 /******************************************************************************/
 
-Channel::Channel(std::string name) : _name(name) {
+Channel::Channel(std::string name) : _name(name), _topic("No topic") {
     return ;
 }
 
@@ -56,4 +56,35 @@ void    Channel::leave(Client *client) {
     return ;
 }
 
+void    Channel::broadcast(Client *sender, std::string message) {
+    for (std::vector<Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++) {
+        if (*it != sender) {
+            (*it)->broadcast(sender, _name, message);
+        }
+    }
+    return ;
+}
 
+/******************************************************************************/
+/*                                 Getters                                    */
+/******************************************************************************/
+
+std::string             Channel::get_name(void) {
+    return this->_name;
+}
+
+std::string             Channel::get_topic(void) {
+    return this->_topic;
+}
+
+std::vector<Client *>   Channel::get_clients(void) {
+    return this->_clients;
+}
+
+std::string             Channel::get_clients_names(void) {
+    std::string names;
+    for (std::vector<Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++) {
+        names += (*it)->get_nickname() + " ";
+    }
+    return names;
+}

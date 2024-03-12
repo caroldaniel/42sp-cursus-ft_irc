@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 21:11:57 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/12 11:22:21 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/12 15:47:56 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 /*                      Constructors and Destructor                           */
 /******************************************************************************/
 
-Command::Command(std::string name) : _name(name) {
+Command::Command(std::string name, Server *server) : _name(name), _server(server) {
     return ;
 }
 
