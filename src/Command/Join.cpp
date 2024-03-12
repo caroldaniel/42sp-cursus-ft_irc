@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 15:00:57 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/12 17:20:03 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/12 19:14:31 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,6 +45,8 @@ void    Join::invoke(Client *client, Message *message) {
             _server->add_channel(channel);
         }
         channel->join(client);
+        std::string message = ":" + client->get_nickname() + "!~d" + "@" + client->get_hostname() + " JOIN " + channel->get_name();
+        send(client->get_socket(), message.c_str(), message.size(), 0);
         client->reply(RPL_TOPIC, "", channel->get_name() + " :" + channel->get_topic());
         client->reply(RPL_NAMREPLY, "", "= " + channel->get_name() + " :" + channel->get_clients_names());
         client->reply(RPL_ENDOFNAMES, "", channel->get_name() + " :End of /NAMES list");

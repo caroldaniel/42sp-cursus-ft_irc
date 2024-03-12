@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 12:03:38 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/12 16:51:35 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/12 19:32:53 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,6 +152,7 @@ void Server::on_client_message(int client_fd, std::string message) {
     Message *msg;
 
     while (std::getline(iss, line)) {
+        std::cout << "Received: " << line << std::endl;
         try {
             msg = new Message(line);
             if (_commands.find(msg->get_command()) == _commands.end())
@@ -274,7 +275,7 @@ void Server::start(void) {
             // If client has been disconnected, call on_client_disconnect
             if (_clients.find(_pollfds[i].fd)->second->is_disconnected()) {
                 on_client_disconnect(_pollfds[i].fd);
-                continue;
+                continue ;
             }
           
             // If the client socket has events, receive data
