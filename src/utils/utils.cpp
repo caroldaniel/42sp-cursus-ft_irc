@@ -6,12 +6,17 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 21:28:58 by user42            #+#    #+#             */
-/*   Updated: 2024/03/11 22:09:52 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/12 09:32:12 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "utils.hpp"
 
+/*
+**  ADDPOLLFD()
+**  ----------------------------------------------------------------------------
+**  Add a file descriptor to the pollfd vector
+*/
 void addPollfd(std::vector<pollfd>& fds, int fd, short events) {
     pollfd p;
     p.fd = fd;
@@ -20,9 +25,11 @@ void addPollfd(std::vector<pollfd>& fds, int fd, short events) {
     fds.push_back(p);
 }
 
-// Split a string into a vector of strings using any whitespace as delimiter.
-// No trailing whispace is included in the individual strings.
-
+/*
+**  SPLIT()
+**  ----------------------------------------------------------------------------
+**  Split a string into tokens, using whitespace as the delimiter
+*/
 std::vector<std::string> split(std::string message) {
     std::vector<std::string> tokens;
     std::string currentToken;
@@ -41,7 +48,6 @@ std::vector<std::string> split(std::string message) {
             inToken = false;
         }
     }
-
     // If the last character was part of a token, add it to the result
     if (!currentToken.empty()) {
         tokens.push_back(currentToken);

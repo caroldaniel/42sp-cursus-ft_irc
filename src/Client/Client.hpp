@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 14:25:21 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/11 21:29:05 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/12 11:24:12 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,13 @@
 # include <stdexcept>
 # include <cerrno>
 # include <poll.h>
+# include <algorithm>
 # include <vector>
 # include <map>
 # include <sstream>
+
+# include "../utils/utils.hpp"
+# include "../utils/IRCmacros.hpp"
 
 class Client
 {
@@ -60,7 +64,7 @@ public:
     // Member functions
     void        disconnect(void);
     void        authenticate(std::string password);
-    void        send_reply(std::string  code, std::string message);
+    void        send_reply(std::string  code, std::string command, std::string message);
 
     // Getters
     int         get_socket(void) const;

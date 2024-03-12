@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 12:03:38 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/11 22:34:15 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/12 12:08:51 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,17 +30,20 @@ Server::Server(const Server &other) {
 }
 
 Server::~Server(void) {
+    // Close the server socket
     if (_socket != -1) {
         close(_socket);
     }
+    // Close all client sockets
+    for (size_t i = 2; i < _pollfds.size(); i++) {
+        if (_pollfds[i].fd != -1)
+            close(_pollfds[i].fd);
+    }
+
     // Delete all clients from the map using c++98 syntax
     for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++) {
         delete it->second;
     }
-    for (size_t i = 0; i < _pollfds.size(); i++) {
-        close(_pollfds[i].fd);
-    }
-
     // Delete commands
     for (std::map<std::string, Command *>::iterator it = _commands.begin(); it != _commands.end(); it++) {
         delete it->second;
@@ -134,12 +137,10 @@ void Server::on_client_message(int client_fd, std::string message) {
             for (size_t i = 0; i < msg->get_params().size(); i++) {
                 std::cout << "Param " << i << ": " << msg->get_params()[i] << std::endl;
             }
-            if (_commands.find(msg->get_command()) == _commands.end()) {
-                get_client(client_fd)->send_reply("421", msg->get_command() + " :Unknown command");
-                delete msg;
-                continue;
-            }
-            _commands[msg->get_command()]->invoke(get_client(client_fd), msg);
+            if (_commands.find(msg->get_command()) == _commands.end())
+                get_client(client_fd)->send_reply(ERR_UNKNOWNCOMMAND, msg->get_command(), ":Unknown command");
+            else
+                _commands[msg->get_command()]->invoke(get_client(client_fd), msg);
             delete msg;
         } catch (std::exception &e) {
             std::cerr << "Error: " << e.what() << std::endl;

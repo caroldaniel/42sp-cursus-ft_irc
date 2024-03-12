@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 22:36:12 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/11 21:36:41 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/12 11:43:36 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 /*                         Constructors and Destructor                        */
 /******************************************************************************/
 
-User::User(void) : Command() {
+User::User(void) : Command("USER") {
     return ;
 }
 
@@ -29,14 +29,20 @@ User::~User(void) {
 /******************************************************************************/
 
 void    User::invoke(Client *client, Message *message) {
+    // Check if message has enough parameters
     if (message->get_params().size() < 4) {
-        client->send_reply("461", "USER :Not enough parameters");
+        client->send_reply(ERR_NEEDMOREPARAMS, _name, ":Not enough parameters");
+        return ;
+    }
+    // Check if the user is already registered
+    if (client->is_registered()) {
+        client->send_reply(ERR_ALREADYREGISTRED, _name, ":You may not reregister");
         return ;
     }
     client->set_username(message->get_params()[0]);
     client->set_realname(message->get_params()[3]);
-    if (client->is_authenticated()) {
-        client->send_reply("001", "Welcome to the Internet Relay Network " + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname());
+    if (client->is_authenticated() && client->is_registered()) {
+        client->send_reply(RPL_WELCOME, "", ":Welcome to the Internet Relay Network " + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname());
     }    
     return ;
 }

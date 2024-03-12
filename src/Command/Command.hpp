@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 20:59:46 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/11 22:34:51 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/12 11:21:55 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,9 +24,11 @@
 /******************************************************************************/
 
 class Command {
+protected:
+    std::string _name;
 public:
     // Constructors
-    Command(void);
+    Command(std::string name);
     Command(const Command &other);
     // Virtual Destructor
     virtual ~Command(void);
@@ -73,6 +75,15 @@ class Quit : public Command {
 public:
     Quit(void);
     ~Quit(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
+class List : public Command {
+public:
+    List(void);
+    ~List(void);
 
     // Member functions
     void    invoke(Client *client, Message *message);

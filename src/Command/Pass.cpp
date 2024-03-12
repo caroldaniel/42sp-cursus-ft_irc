@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 21:40:27 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/11 21:47:43 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/12 11:51:58 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 /*                      Constructors and Destructor                           */
 /******************************************************************************/
 
-Pass::Pass(void) : Command() {
+Pass::Pass(void) : Command("PASS") {
     return ;
 }
 
@@ -29,19 +29,16 @@ Pass::~Pass(void) {
 /******************************************************************************/
 
 void    Pass::invoke(Client *client, Message *message) {
-    std::string password;
-
+    // Check if message has enough parameters
     if (message->get_params().size() < 1) {
-        client->send_reply("461", "PASS :Not enough parameters");
+        client->send_reply(ERR_NEEDMOREPARAMS, _name, ":Not enough parameters");
         return ;
     }
-    password = message->get_params()[0];
-    client->authenticate(password);
-    if (!client->is_authenticated()) {
-        client->send_reply("464", "Password incorrect");
-    }
-    else if (client->is_authenticated() && client->is_registered()) {
-        client->send_reply("001", "Welcome to the Internet Relay Network " + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname());
-    }
+    
+    client->authenticate(message->get_params()[0]);
+    if (!client->is_authenticated())
+        client->send_reply(ERR_PASSWDMISMATCH, _name, ":Password incorrect");
+    else if (client->is_registered()) 
+        client->send_reply(RPL_WELCOME, "", ":Welcome to the Internet Relay Network " + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname());
     return ;
 }

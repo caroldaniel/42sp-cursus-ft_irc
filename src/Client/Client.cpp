@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 14:25:23 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/11 22:17:31 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/12 12:07:05 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,9 +65,15 @@ void        Client::authenticate(std::string password) {
     return ;
 }
 
-void        Client::send_reply(std::string code, std::string message) {
+void        Client::send_reply(std::string code, std::string command, std::string message) {
     // Concatenate the message and send it to the client
-    std::string reply = ":" + _server_hostname + " " + code + " " + _nickname + " " + message + "\r\n";
+    std::string reply;
+    
+    if (command.empty()) {
+        reply = ":" + _server_hostname + SPACE + code + SPACE + _nickname + SPACE + message + CRLF;
+    } else {
+        reply = ":" + _server_hostname + SPACE + code + SPACE + _nickname + SPACE + command + SPACE + message + CRLF;
+    }
     std::cout << "Sending reply: " << reply << std::endl;
     send(_socket, reply.c_str(), reply.length(), 0);
     return ;
