@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 12:03:38 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/10 23:15:54 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/11 22:25:05 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,6 +17,10 @@
 /******************************************************************************/
 
 Server::Server(std::string port, std::string password) : _running(false), _socket(-1), _port(port), _password(password), _hostname("127.0.0.1") {
+    _commands["USER"] = new User();
+    _commands["PASS"] = new Pass();
+    _commands["NICK"] = new Nick();
+    _commands["QUIT"] = new Quit();
     return ;
 }
 
@@ -111,11 +115,29 @@ void Server::on_client_disconnect(int client_fd) {
 }
 
 void Server::on_client_message(int client_fd, std::string message) {
+    client_fd = client_fd;
     // Parse line by line
     std::istringstream iss(message); 
     std::string line;
+    Message *msg;
+
     while (std::getline(iss, line)) {
-        
+        try {
+            msg = new Message(line);
+            std::cout << "Command: " << msg->get_command() << std::endl;
+            for (size_t i = 0; i < msg->get_params().size(); i++) {
+                std::cout << "Param " << i << ": " << msg->get_params()[i] << std::endl;
+            }
+            if (_commands.find(msg->get_command()) == _commands.end()) {
+                get_client(client_fd)->send_reply("421", msg->get_command() + " :Unknown command");
+                delete msg;
+                continue;
+            }
+            _commands[msg->get_command()]->invoke(get_client(client_fd), msg);
+            delete msg;
+        } catch (std::exception &e) {
+            std::cerr << "Error: " << e.what() << std::endl;
+        }
     }
     return ;
 }
@@ -214,13 +236,18 @@ void Server::start(void) {
         }
         
         for (size_t i = 2; i < _pollfds.size(); i++) {
-            
-            // If the client socket disconnected, remove it
+
+            // If the client received a HUP event, disconnect it
             if ((_pollfds[i].revents & POLLHUP) == POLLHUP) {
+                _clients.find(_pollfds[i].fd)->second->disconnect();
+            }
+            
+            // If client has been disconnected, call on_client_disconnect
+            if (_clients.find(_pollfds[i].fd)->second->is_disconnected()) {
                 on_client_disconnect(_pollfds[i].fd);
                 continue;
             }
-            
+          
             // If the client socket has events, receive data
             if ((_pollfds[i].revents & POLLIN) == POLLIN) {
         
@@ -232,27 +259,9 @@ void Server::start(void) {
                     throw std::runtime_error("Cannot receive data from client: " + std::string(strerror(errno)));
                 }
 
-                // If the client socket is closed, remove it from the vector
-                if (bytes_received == 0) {
-                    on_client_disconnect(_pollfds[i].fd);
-                    continue;
-                }
-
                 // Print the received data
                 on_client_message(_pollfds[i].fd, std::string(buffer, bytes_received));
             }
         }
     }
-}
-
-void Server::authenticate_client(int client_fd, std::string password) {
-    std::map<int, Client *>::iterator it = _clients.find(client_fd);
-    if (it != _clients.end()) {
-        try {
-            it->second->authenticate(password);
-        } catch (std::exception &e) {
-            throw std::runtime_error("Cannot authenticate client: " + std::string(e.what()));
-        }
-    }
-    return ;
 }

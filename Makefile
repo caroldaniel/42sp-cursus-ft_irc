@@ -6,7 +6,7 @@
 #    By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/06 12:03:46 by cado-car          #+#    #+#              #
-#    Updated: 2024/03/10 23:29:48 by cado-car         ###   ########.fr        #
+#    Updated: 2024/03/11 21:37:38 by cado-car         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -23,15 +23,19 @@ SRC_DIR		= src/
 SRC			= main.cpp \
 			  Server.cpp \
 			  Client.cpp \
-			  Parser.cpp \
+			  Message.cpp \
 			  Command.cpp \
+			  Nick.cpp \
+			  User.cpp \
+			  Pass.cpp \
+			  Quit.cpp \
 			  utils.cpp
 
 VPATH		= $(SRC_DIR) \
 			$(SRC_DIR)utils \
 			$(SRC_DIR)Server \
 			$(SRC_DIR)Client \
-			$(SRC_DIR)Parser \
+			$(SRC_DIR)Message \
 			$(SRC_DIR)Command \
 			
 # **************************************************************************** #

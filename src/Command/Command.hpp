@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 20:59:46 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/10 23:34:20 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/11 21:12:08 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,66 +16,66 @@
 # include <vector>
 # include <string>
 
-# include "../Server/Server.hpp"
+# include "../Client/Client.hpp"
+# include "../Message/Message.hpp"
 
-/*
-** The Base Command class
-*/
+/******************************************************************************/
+/*                            Base Class Definition                           */
+/******************************************************************************/
 
 class Command {
-protected:
-    Server *                    _server;
-    std::vector<std::string>    _tokens;
-
 public:
-    Command(Server &server, std::vector<std::string> tokens);
+    // Constructors
+    Command(void);
     Command(const Command &other);
+    // Destructor
     ~Command(void);
-
-    // Operator overloads
+    // Assignment operator
     Command &operator=(const Command &other);
 
     // Member functions
-    virtual void    execute_command(Client *client) = 0;
+    virtual void    invoke(Client *client, Message *message) = 0;
 };
 
-/*
-**  The Command classes
-*/
+
+/******************************************************************************/
+/*                            Derived Classes                                 */
+/******************************************************************************/
+
 class Pass : public Command {
 public:
-    Pass(Server &server, std::vector<std::string> tokens);
+    Pass(void);
     ~Pass(void);
 
     // Member functions
-    void    execute_command(Client *client);
+    void    invoke(Client *client, Message *message);
 };
 
 class User : public Command {
 public:
-    User(Server &server, std::vector<std::string> tokens);
+    User(void);
     ~User(void);
 
     // Member functions
-    void    execute_command(Client *client);
+    void    invoke(Client *client, Message *message);
 };
 
 class Nick : public Command {
 public:
-    Nick(Server &server, std::vector<std::string> tokens);
+    Nick(void);
     ~Nick(void);
 
     // Member functions
-    void    execute_command(Client *client);
+    void    invoke(Client *client, Message *message);
 };
 
 class Quit : public Command {
 public:
-    Quit(Server &server, std::vector<std::string> tokens);
+    Quit(void);
     ~Quit(void);
 
     // Member functions
-    void    execute_command(Client *client);
+    void    invoke(Client *client, Message *message);
 };
 
 #endif

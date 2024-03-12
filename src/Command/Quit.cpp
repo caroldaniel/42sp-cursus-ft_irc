@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 23:26:36 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/10 23:26:52 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/11 22:21:33 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 /*                         Constructors and Destructor                        */
 /******************************************************************************/
 
-Quit::Quit(Server *server, std::vector<std::string> tokens) : Command(server, tokens) {
+Quit::Quit(void) : Command() {
     return ;
 }
 
@@ -28,8 +28,9 @@ Quit::~Quit(void) {
 /*                         Member functions                                   */
 /******************************************************************************/
 
-void    Quit::execute_command(Client *client) {
-    client->send_reply("001", "Goodbye!");
+void    Quit::invoke(Client *client, Message *message) {
+    message = message;
     client->disconnect();
+    client->send_reply("221", "Goodbye!");
     return ;
 }

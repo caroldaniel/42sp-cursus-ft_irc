@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 14:25:21 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/10 23:23:37 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/11 21:29:05 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,17 +39,22 @@ private:
     int                 _socket;
     int                 _port;
     const std::string   _password;
+    
+    bool                _disconnected;
     bool                _authenticated;
 
-    std::string _nickname;
-    std::string _username;
-    std::string _realname;
-    std::string _hostname;
+    std::string         _nickname;
+    std::string         _username;
+    std::string         _realname;
+    std::string         _hostname;
     
 public:
+    // Constructors
     Client(std::string server_hostname, int fd, int port, std::string password, const std::string &hostname);
     Client(const Client &other);
+    // Destructor
     ~Client();
+    // Assignment operator
     Client &operator=(const Client &other);
 
     // Member functions
@@ -64,7 +69,10 @@ public:
     std::string get_username(void) const;
     std::string get_realname(void) const;
     std::string get_hostname(void) const;
+
+    bool        is_disconnected(void) const;
     bool        is_authenticated(void) const;
+    bool        is_registered(void) const;
 
     // Setters
     void        set_nickname(const std::string &nickname);
