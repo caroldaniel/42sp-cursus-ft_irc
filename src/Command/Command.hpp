@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 20:59:46 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/11 21:12:08 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/11 22:34:51 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,8 +28,8 @@ public:
     // Constructors
     Command(void);
     Command(const Command &other);
-    // Destructor
-    ~Command(void);
+    // Virtual Destructor
+    virtual ~Command(void);
     // Assignment operator
     Command &operator=(const Command &other);
 

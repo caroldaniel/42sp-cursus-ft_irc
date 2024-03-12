@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 12:03:38 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/11 22:25:05 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/11 22:34:15 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,12 @@ Server::~Server(void) {
     for (size_t i = 0; i < _pollfds.size(); i++) {
         close(_pollfds[i].fd);
     }
+
+    // Delete commands
+    for (std::map<std::string, Command *>::iterator it = _commands.begin(); it != _commands.end(); it++) {
+        delete it->second;
+    }
+    return ;
 }
 
 /******************************************************************************/
