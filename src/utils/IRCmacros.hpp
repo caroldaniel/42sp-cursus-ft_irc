@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 10:06:24 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/12 15:15:13 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/12 21:00:13 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,6 @@
 # define RPL_TOPIC                  "332" // <channel> :<topic>
 # define RPL_NAMREPLY               "353" // = <channel> :<nick1> <nick2> <nick3> ...
 # define RPL_ENDOFNAMES             "366" // <channel> :End of /NAMES list
-
 
 /******************************************************************************/
 /*                             ERROR REPLIES                                  */

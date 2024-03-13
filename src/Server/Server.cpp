@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 12:03:38 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/12 19:32:53 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/12 21:06:07 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,7 @@ Server::Server(std::string port, std::string password) : _running(false), _socke
     _commands["QUIT"] = new Quit(this);
     _commands["LIST"] = new List(this);
     _commands["JOIN"] = new Join(this);
+    _commands["PRIVMSG"] = new Privmsg(this);
     return ;
 }
 
@@ -78,6 +79,15 @@ Client  *Server::get_client(int client_fd) {
         throw std::runtime_error("Client not found");
     }
     return it->second;
+}
+
+Client  *Server::get_client_by_nickname(std::string nickname) {
+    for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++) {
+        if (it->second->get_nickname() == nickname) {
+            return it->second;
+        }
+    }
+    return NULL;
 }
 
 Channel *Server::get_channel(std::string name) {

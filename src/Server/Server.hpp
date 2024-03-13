@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 12:03:43 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/12 16:10:02 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/12 20:58:58 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,7 @@ public:
 
     // Getters
     Client  *get_client(int client_fd);
+    Client  *get_client_by_nickname(std::string nickname);
     Channel *get_channel(std::string name);
     std::vector<Channel *> list_channels(void);
 
@@ -146,6 +147,15 @@ class Join : public Command {
 public:
     Join(Server *server);
     ~Join(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
+class Privmsg : public Command {
+public:
+    Privmsg(Server *server);
+    ~Privmsg(void);
 
     // Member functions
     void    invoke(Client *client, Message *message);

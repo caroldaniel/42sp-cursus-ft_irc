@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 09:47:16 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/12 16:02:14 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/12 21:36:27 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ void    Channel::leave(Client *client) {
 void    Channel::broadcast(Client *sender, std::string message) {
     for (std::vector<Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++) {
         if (*it != sender) {
+            std::cout << "Broadcasting to " << (*it)->get_nickname() << std::endl;
             (*it)->broadcast(sender, _name, message);
         }
     }

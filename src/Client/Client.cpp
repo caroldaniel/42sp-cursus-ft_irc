@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 14:25:23 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/12 16:04:48 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/12 21:42:59 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,7 +81,7 @@ void        Client::reply(std::string code, std::string command, std::string mes
 
 void        Client::broadcast(Client *sender, std::string target, std::string message) {
     // Concatenate the message and send it to the client
-    std::string reply = ":" + sender->get_nickname() + "!" + sender->get_username() + "@" + sender->get_hostname() + SPACE + "PRIVMSG" + SPACE + target + SPACE + ":" + message + CRLF;
+    std::string reply = ":" + sender->get_nickname() + SPACE + "PRIVMSG" + SPACE + target + ":" + _server_hostname + SPACE + ":" + message + CRLF;
     std::cout << "Broadcasting: " << reply << std::endl;
     send(_socket, reply.c_str(), reply.length(), 0);
     return ;
@@ -90,6 +90,10 @@ void        Client::broadcast(Client *sender, std::string target, std::string me
 /******************************************************************************/
 /*                                 Getters                                    */
 /******************************************************************************/
+
+std::string Client::get_server_hostname(void) const {
+    return _server_hostname;
+}
 
 int         Client::get_socket(void) const {
     return _socket;
