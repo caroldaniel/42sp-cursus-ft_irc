@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 12:02:55 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/08 11:42:05 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/10 17:56:33 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,12 +30,11 @@ int main(int argc, char **argv)
     // Create and start server
     Server ircserv(port, password);
     try {
-        ircserv.create_socket();
         ircserv.start();
     } catch (std::exception &e) {
         std::cerr << "Error: " << e.what() << std::endl;
         return 1;
     }
-
+    
     return 0;
 }

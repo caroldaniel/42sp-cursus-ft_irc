@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 14:25:21 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/08 11:42:58 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/03/12 21:18:03 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,46 +26,72 @@
 # include <stdexcept>
 # include <cerrno>
 # include <poll.h>
+# include <algorithm>
 # include <vector>
 # include <map>
-#include <sstream>
+# include <sstream>
 
+# include "../utils/utils.hpp"
+# include "../utils/IRCmacros.hpp"
+
+class Channel;
 
 class Client
 {
-    private:
+private:
 
-        // Attributes
-        int         _socket;
-        int         _port;
-	bool        _autent;
+    // Attributes
+    std::string             _server_hostname;
+    int                     _socket;
+    int                     _port;
+    const std::string       _password;
+    const std::string       _oper_password;
+    
+    bool                    _disconnected;
+    bool                    _authenticated;
+    bool                    _oper;
 
-        std::string _nickname;
-        std::string _username;
-        std::string _realname;
-        std::string _hostname;
-        std::string _password;
+    std::string             _nickname;
+    std::string             _username;
+    std::string             _realname;
+    std::string             _hostname;
 
-    public:
-        Client(int fd, int port, const std::string &hostname);
-        Client(const Client &other);
-        ~Client();
-        Client &operator=(const Client &other);
+public:
+    // Constructors
+    Client(std::string server_hostname, int fd, int port, std::string password, std::string oper_password,const std::string &hostname);
+    Client(const Client &other);
+    // Destructor
+    ~Client();
+    // Assignment operator
+    Client &operator=(const Client &other);
 
-        // Getters and Setters
-        int         get_socket(void) const;
-        int         get_port(void) const;
-        std::string get_nickname(void) const;
-        std::string get_username(void) const;
-        std::string get_realname(void) const;
-        std::string get_hostname(void) const;
-        std::string get_password(void) const;
-        bool 	    get_autent(void) const;
-        void set_nickname(const std::string nickname);
-        void set_username(const std::string username);
-        void set_realname(const std::string realname);
-        void set_password(const std::string realname);
-        void set_autent(const bool autent);
+    // Member functions
+    void        disconnect(void);
+    void        authenticate(std::string password);
+    void        operCheck(std::string oper_password);
+    void        reply(std::string  code, std::string command, std::string message);
+    void        broadcast(Client *sender, std::string target, std::string message);
+
+    // Getters
+    std::string get_server_hostname(void) const;
+    int         get_socket(void) const;
+    int         get_port(void) const;
+    std::string get_nickname(void) const;
+    std::string get_username(void) const;
+    std::string get_realname(void) const;
+    std::string get_hostname(void) const;
+
+    bool        is_disconnected(void) const;
+    bool        is_authenticated(void) const;
+    bool        is_oper(void) const;
+    bool        is_registered(void) const;
+
+    // Setters
+    void        set_nickname(const std::string &nickname);
+    void        set_username(const std::string &username);
+    void        set_realname(const std::string &realname);
+    
 };
+
 
 #endif

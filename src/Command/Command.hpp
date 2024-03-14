@@ -1,24 +1,18 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.hpp                                          :+:      :+:    :+:   */
+/*   Command.hpp                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/06 21:28:15 by user42            #+#    #+#             */
-/*   Updated: 2024/03/12 09:32:36 by cado-car         ###   ########.fr       */
+/*   Created: 2024/03/12 15:47:32 by cado-car          #+#    #+#             */
+/*   Updated: 2024/03/12 15:47:49 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#ifndef UTILS_HPP
-# define UTILS_HPP
+#ifndef COMMAND_HPP
+# define COMMAND_HPP
 
-#include <vector>
-#include <string>
-#include <poll.h>
-#include <sstream>
-
-void                        addPollfd(std::vector<pollfd>& fds, int fd, short events);
-std::vector<std::string>    split(std::string message);
+# include "../Server/Server.hpp"
 
 #endif
