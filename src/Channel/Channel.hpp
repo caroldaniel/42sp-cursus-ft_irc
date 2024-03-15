@@ -41,10 +41,11 @@ public:
     std::string             get_clients_names(void);
     std::string             get_chanop_names(void);
     bool                    get_topic_restriction(void);
+    Client                  *get_client_by_nickname(std::string nickname);
 
     // Setters
     void                    set_topic(const std::string topic);
-    void                    set_mode(const std::string target, const std::string mode);
+    bool                    set_mode(const std::string target, const std::string mode);
 };
 
 #endif

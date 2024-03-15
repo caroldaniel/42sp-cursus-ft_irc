@@ -166,7 +166,7 @@ void Server::on_client_message(int client_fd, std::string message) {
     Message *msg;
 
     while (std::getline(iss, line)) {
-        std::cout << "Received: " << line << std::endl;
+        std::cout << "Received from " << _clients[client_fd]->get_nickname() << ": " << line << std::endl;
         try {
             msg = new Message(line);
             if (_commands.find(msg->get_command()) == _commands.end())

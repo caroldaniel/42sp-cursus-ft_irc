@@ -102,6 +102,15 @@ std::string             Channel::get_chanop_names(void) {
     return names;
 }
 
+Client *Channel::get_client_by_nickname(std::string nickname) {
+    for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); it++) {
+        if ((*it)->get_nickname() == nickname) {
+            return *it;
+        }
+    }
+    return NULL;
+}
+
 /******************************************************************************/
 /*                                 Setters                                    */
 /******************************************************************************/
@@ -111,14 +120,21 @@ void                    Channel::set_topic(const std::string topic) {
     return ;
 }
 
-void Channel::set_mode(const std::string target, const std::string mode) {
+bool Channel::set_mode(const std::string target, const std::string mode) {
     if (mode[0] == '+') {
         for (size_t i = 1; i < mode.length(); i++) {
             switch (mode[i]) {
                 case 't':
                     this->_topic_restriction = true;
                     break;
-                // Add more cases for other mode options if needed
+                case 'o':
+                    Client *client = this->get_client_by_nickname(target);
+                    if (client != NULL) {
+                        this->_op_clients.push_back(client);
+                        break;
+                    } else
+                        return false;
+                // Add more cases for other mode options
             }
         }
     } else if (mode[0] == '-') {
@@ -127,10 +143,19 @@ void Channel::set_mode(const std::string target, const std::string mode) {
                 case 't':
                     this->_topic_restriction = false;
                     break;
-                // Add more cases for other mode options if needed
+                case 'o':
+                    Client *client = this->get_client_by_nickname(target);
+                    if (client != NULL) {
+                        std::vector<Client *>::iterator it = std::find(this->_op_clients.begin(), this->_op_clients.end(), client); 
+                        if (it != this->_op_clients.end()) {
+                            this->_op_clients.erase(it);
+                        }
+                        break;
+                    } else
+                        return false;
+                // Add more cases for other mode options
             }
         }
     }
-    std::cout << "target:" << target << std::endl;
-    return;
+    return true;
 }

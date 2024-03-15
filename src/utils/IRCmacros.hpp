@@ -49,6 +49,11 @@
 # define RPL_ENDOFNAMES             "366" // <channel> :End of /NAMES list
 # define RPL_YOUREOPER              "381" // <client> :You are now an IRC operator
 
+/*
+**  Mode Command
+*/
+# define RPL_CHANNELMODEIS          "324" // <channel> <mode> <mode params>
+
 /******************************************************************************/
 /*                             ERROR REPLIES                                  */
 /******************************************************************************/

@@ -68,7 +68,7 @@ public:
     // Member functions
     void        disconnect(void);
     void        authenticate(std::string password);
-    void        operCheck(std::string oper_password);
+    void        oper(std::string oper_password);
     void        reply(std::string  code, std::string command, std::string message);
     void        broadcast(Client *sender, std::string target, std::string message);
 

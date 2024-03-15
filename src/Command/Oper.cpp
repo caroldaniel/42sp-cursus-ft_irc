@@ -43,7 +43,7 @@ void Oper::invoke(Client *client, Message *message) {
     Client *target = _server->get_client_by_nickname(target_name);
     if (target) {
         if (target->is_registered()) {
-            target->operCheck(message->get_params()[1]);
+            target->oper(message->get_params()[1]);
             if (target->is_oper()) {
                 client->reply(RPL_YOUREOPER, "", target->get_nickname() + ": You are now an IRC operator");
             } else {

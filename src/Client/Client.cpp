@@ -65,7 +65,7 @@ void        Client::authenticate(std::string password) {
     return ;
 }
 
-void        Client::operCheck(std::string oper_password) {
+void        Client::oper(std::string oper_password) {
     // compare the password
     if (oper_password != _oper_password) {
         _oper = false;

@@ -46,25 +46,26 @@ void Topic::invoke(Client *client, Message *message) {
     if (pos != std::string::npos) {
         channel_name = channel_name.substr(0, pos);
     }
-
+    // Check if channel exists
     Channel *channel = _server->get_channel(channel_name);
     if (channel == NULL) {
         client->reply(ERR_NOSUCHCHANNEL, channel_name, ": No such channel");
         return ;
     }
 
-    // Check if client can use topic command
+    // Check if client is on channel
     if(channel->get_clients_names().find(client->get_nickname()) == std::string::npos) {
         client->reply(ERR_NOTONCHANNEL, client->get_nickname() + channel_name, ": You're not on that channel");
         return ;
     }
+    // Check if client has permission to change topic
     if(channel->get_topic_restriction()) {
         if (!client->is_oper() && channel->get_chanop_names().find(client->get_nickname()) == std::string::npos) {  
             client->reply(ERR_CHANOPRIVSNEEDED, "", client->get_nickname() + " " + channel->get_name() + ": You're not channel operator");
             return ;
         }
     }
-    // Show topic of channel
+    // If no topic is set, return RPL_NOTOPIC
     if (message->get_params().size() == 1) {
         if (channel->get_topic() == "No topic") {
             client->reply(RPL_NOTOPIC, "", client->get_nickname() + " " + channel->get_name() + ": No topic is set");
@@ -81,5 +82,6 @@ void Topic::invoke(Client *client, Message *message) {
             topic = topic.substr(pos + 1);
         }
         channel->set_topic(topic);
+        client->reply(RPL_TOPIC, "", channel->get_name() + " :" + channel->get_topic());
     }
 }

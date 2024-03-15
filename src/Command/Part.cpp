@@ -41,7 +41,7 @@ void    Part::invoke(Client *client, Message *message) {
         client->reply(ERR_NOSUCHCHANNEL, channel_name, ": No such channel");
         return ;
     }
-
+    // Check if channel exists
     size_t pos = channel_name.find(":");
     if (pos != std::string::npos) {
         channel_name = channel_name.substr(0, pos);
