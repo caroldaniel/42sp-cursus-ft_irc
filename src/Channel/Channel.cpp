@@ -157,5 +157,7 @@ bool Channel::set_mode(const std::string target, const std::string mode) {
             }
         }
     }
+    else
+        return false;
     return true;
 }

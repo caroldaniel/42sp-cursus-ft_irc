@@ -79,7 +79,7 @@ fclean:		clean
 			@printf "$(GR)Binary files cleaned successfully!$(RC)\n"
 
 leak:		$(NAME)
-			valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes ./$(NAME) 9000 123
+			valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes ./$(NAME) 4242 senha
 
 .PHONY:		all re clean fclean
 
