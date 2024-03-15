@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Oper.cpp                                           :+:      :+:    :+:   */
+/*   Part.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
+/*   By: dofranci <dofranci@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/12 15:00:57 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/12 19:14:31 by cado-car         ###   ########.fr       */
+/*   Created: 2024-03-15 02:15:14 by dofranci          #+#    #+#             */
+/*   Updated: 2024-03-15 02:15:14 by dofranci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,11 @@
 /*                      Constructors and Destructor                           */
 /******************************************************************************/
 
-Oper::Oper(Server *server) : Command("OPER", server) {
+Part::Part(Server *server) : Command("Part", server) {
     return ;
 }
 
-Oper::~Oper(void) {
+Part::~Part(void) {
     return ;
 }
 
@@ -28,29 +28,29 @@ Oper::~Oper(void) {
 /*                         Member functions                                   */
 /******************************************************************************/
 
-void Oper::invoke(Client *client, Message *message) {
-    if (message->get_params().size() < 2) {
+void    Part::invoke(Client *client, Message *message) {
+    // Check if message has enough parameters
+    if (message->get_params().size() == 0) {
         client->reply(ERR_NEEDMOREPARAMS, _name, ": Not enough parameters");
         return ;
     }
 
-    std::string target_name = message->get_params()[0];
-    size_t pos = target_name.find(":");
-    if (pos != std::string::npos) {
-        target_name = target_name.substr(0, pos);
+    // Check if is a valid channel
+    std::string channel_name = message->get_params()[0];
+    if (channel_name[0] != '#') {
+        client->reply(ERR_NOSUCHCHANNEL, channel_name, ": No such channel");
+        return ;
     }
 
-    Client *target = _server->get_client_by_nickname(target_name);
-    if (target) {
-        if (target->is_registered()) {
-            target->operCheck(message->get_params()[1]);
-            if (target->is_oper()) {
-                client->reply(RPL_YOUREOPER, "", target->get_nickname() + ": You are now an IRC operator");
-            } else {
-                client->reply(ERR_PASSWDMISMATCH, "", target->get_nickname() + ": Password incorrect");
-            }
-        }
-    } else {
-        client->reply(ERR_NOSUCHNICK, message->get_params()[0], ": No such nick/channel");
+    size_t pos = channel_name.find(":");
+    if (pos != std::string::npos) {
+        channel_name = channel_name.substr(0, pos);
     }
+
+    Channel *channel = _server->get_channel(channel_name);
+    if (channel == NULL) {
+        client->reply(ERR_NOSUCHCHANNEL, channel_name, ": No such channel");
+        return ;
+    }
+    channel->leave(client);
 }

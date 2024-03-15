@@ -20,6 +20,9 @@ private:
     std::string             _name;
     std::string             _topic;
     std::vector<Client *>   _clients;
+    std::vector<Client *>   _op_clients;
+
+    bool                    _topic_restriction;
 
 public:
     Channel(std::string name);
@@ -36,9 +39,12 @@ public:
     std::string             get_topic(void);
     std::vector<Client *>   get_clients(void);
     std::string             get_clients_names(void);
+    std::string             get_chanop_names(void);
+    bool                    get_topic_restriction(void);
 
     // Setters
     void                    set_topic(const std::string topic);
+    void                    set_mode(const std::string target, const std::string mode);
 };
 
 #endif

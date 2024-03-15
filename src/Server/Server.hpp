@@ -178,4 +178,23 @@ public:
     // Member functions
     void    invoke(Client *client, Message *message);
 };
+
+class Mode : public Command {
+public:
+    Mode(Server *server);
+    ~Mode(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
+class Part : public Command {
+public:
+    Part(Server *server);
+    ~Part(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
 #endif

@@ -16,7 +16,7 @@
 /*                      Constructors and Destructor                           */
 /******************************************************************************/
 
-Channel::Channel(std::string name) : _name(name), _topic("No topic") {
+Channel::Channel(std::string name) : _name(name), _topic("No topic"), _topic_restriction(true) {
     return ;
 }
 
@@ -78,6 +78,10 @@ std::string             Channel::get_topic(void) {
     return this->_topic;
 }
 
+bool                    Channel::get_topic_restriction(void) {
+    return this->_topic_restriction;
+}
+
 std::vector<Client *>   Channel::get_clients(void) {
     return this->_clients;
 }
@@ -90,6 +94,14 @@ std::string             Channel::get_clients_names(void) {
     return names;
 }
 
+std::string             Channel::get_chanop_names(void) {
+    std::string names;
+    for (std::vector<Client *>::iterator it = this->_op_clients.begin(); it != this->_op_clients.end(); it++) {
+        names += (*it)->get_nickname() + " ";
+    }
+    return names;
+}
+
 /******************************************************************************/
 /*                                 Setters                                    */
 /******************************************************************************/
@@ -97,4 +109,28 @@ std::string             Channel::get_clients_names(void) {
 void                    Channel::set_topic(const std::string topic) {
     this->_topic = topic;
     return ;
+}
+
+void Channel::set_mode(const std::string target, const std::string mode) {
+    if (mode[0] == '+') {
+        for (size_t i = 1; i < mode.length(); i++) {
+            switch (mode[i]) {
+                case 't':
+                    this->_topic_restriction = true;
+                    break;
+                // Add more cases for other mode options if needed
+            }
+        }
+    } else if (mode[0] == '-') {
+        for (size_t i = 1; i < mode.length(); i++) {
+            switch (mode[i]) {
+                case 't':
+                    this->_topic_restriction = false;
+                    break;
+                // Add more cases for other mode options if needed
+            }
+        }
+    }
+    std::cout << "target:" << target << std::endl;
+    return;
 }

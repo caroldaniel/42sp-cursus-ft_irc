@@ -26,6 +26,8 @@ Server::Server(std::string port, std::string password) : _running(false), _socke
     _commands["PRIVMSG"] = new Privmsg(this);
     _commands["OPER"] = new Oper(this);
     _commands["TOPIC"] = new Topic(this);
+    _commands["MODE"] = new Mode(this);
+    _commands["PART"] = new Part(this);
     return ;
 }
 

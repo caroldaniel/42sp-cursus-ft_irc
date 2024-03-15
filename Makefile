@@ -36,6 +36,8 @@ SRC			= main.cpp \
 			  Privmsg.cpp \
 			  Oper.cpp \
 			  Topic.cpp \
+			  Mode.cpp \
+			  Part.cpp \
 
 VPATH		= $(SRC_DIR) \
 			$(SRC_DIR)utils \
