@@ -197,4 +197,22 @@ public:
     void    invoke(Client *client, Message *message);
 };
 
+class UnOper : public Command {
+public:
+    UnOper(Server *server);
+    ~UnOper(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
+class Kick : public Command {
+public:
+    Kick(Server *server);
+    ~Kick(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
 #endif

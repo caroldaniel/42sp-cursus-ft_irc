@@ -29,67 +29,69 @@ Mode::~Mode(void) {
 /******************************************************************************/
 
 void Mode::invoke(Client *client, Message *message) {
-    // Check if message has enough parameters
-    if (message->get_params().size() < 2) {
-        client->reply(ERR_NEEDMOREPARAMS, _name, ": Not enough parameters");
-        return ;
-    }
-
-    // Check if the client has the necessary permissions to change the mode
-    if (!client->is_oper()) {
-        // Send an error message to the client
-        client->reply(ERR_NOPRIVILEGES, _name, ": Permission Denied");
-        return ;
-    }
-
-    // Check if is a valid channel
-    std::string channel_name = message->get_params()[0];
-    if (channel_name[0] != '#') {
-        client->reply(ERR_NOSUCHCHANNEL, channel_name, ": No such channel");
-        return ;
-    }
-
-    size_t pos = channel_name.find(":");
-    if (pos != std::string::npos) {
-        channel_name = channel_name.substr(0, pos);
-    }
-    // Check if channel exists
-    Channel *channel = _server->get_channel(channel_name);
-    if (channel == NULL) {
-        client->reply(ERR_NOSUCHCHANNEL, channel_name, ": No such channel");
-        return ;
-    }
-
-    // Check if client is on channel
-    if(channel->get_clients_names().find(client->get_nickname()) == std::string::npos) {
-        client->reply(ERR_NOTONCHANNEL, client->get_nickname() + channel_name, ": You're not on that channel");
-        return ;
-    }
-
-    // Perform the necessary actions based on the mode
-    std::string mode_notice = "";
-    if (message->get_params().size() == 2) {
-        if (!channel->set_mode(message->get_params()[0], message->get_params()[1])) {
-            // Send an error message to the client
-            client->reply(ERR_NOSUCHNICK, "", ":No such nick/channel");
+    if (client->is_authenticated() && client->is_registered()) {
+        // Check if message has enough parameters
+        if (message->get_params().size() < 2) {
+            client->reply(ERR_NEEDMOREPARAMS, _name, ": Not enough parameters");
             return ;
         }
-        client->reply(RPL_CHANNELMODEIS, " MODE ", message->get_params()[0] + " " + message->get_params()[1]);
-        mode_notice = ":" + client->get_nickname() + " MODE " + channel->get_name() + " " + message->get_params()[0] + " " + message->get_params()[1] + "\n";
-    }
 
-    if (message->get_params().size() == 3) {
-        if (!channel->set_mode(message->get_params()[2], message->get_params()[1])) {
+        // Check if the client has the necessary permissions to change the mode
+        if (!client->is_oper()) {
             // Send an error message to the client
-            client->reply(ERR_NOSUCHNICK, "", ":No such nick/channel");
+            client->reply(ERR_NOPRIVILEGES, _name, ": Permission Denied");
             return ;
         }
-        client->reply(RPL_CHANNELMODEIS, " MODE ", message->get_params()[2] + " " + message->get_params()[1]);
-        mode_notice = ":" + client->get_nickname() + " MODE " + channel->get_name() + " " + message->get_params()[2] + " " + message->get_params()[1] + "\n";
-    }
 
-    // Send a response to the client indicating the mode change
-    channel->broadcast(client, mode_notice);
+        // Check if is a valid channel
+        std::string channel_name = message->get_params()[0];
+        if (channel_name[0] != '#') {
+            client->reply(ERR_NOSUCHCHANNEL, channel_name, ": No such channel");
+            return ;
+        }
+
+        size_t pos = channel_name.find(":");
+        if (pos != std::string::npos) {
+            channel_name = channel_name.substr(0, pos);
+        }
+        // Check if channel exists
+        Channel *channel = _server->get_channel(channel_name);
+        if (channel == NULL) {
+            client->reply(ERR_NOSUCHCHANNEL, channel_name, ": No such channel");
+            return ;
+        }
+
+        // Check if client is on channel
+        if(channel->get_clients_names().find(client->get_nickname()) == std::string::npos) {
+            client->reply(ERR_NOTONCHANNEL, client->get_nickname() + channel_name, ": You're not on that channel");
+            return ;
+        }
+
+        // Perform the necessary actions based on the mode
+        std::string mode_notice = "";
+        if (message->get_params().size() == 2) {
+            if (!channel->set_mode(message->get_params()[0], message->get_params()[1])) {
+                // Send an error message to the client
+                client->reply(ERR_NOSUCHNICK, "", ":No such nick/channel");
+                return ;
+            }
+            client->reply(RPL_CHANNELMODEIS, " MODE ", message->get_params()[0] + " " + message->get_params()[1]);
+            mode_notice = ":" + client->get_nickname() + " MODE " + channel->get_name() + " " + message->get_params()[0] + " " + message->get_params()[1] + "\n";
+        }
+
+        if (message->get_params().size() == 3) {
+            if (!channel->set_mode(message->get_params()[2], message->get_params()[1])) {
+                // Send an error message to the client
+                client->reply(ERR_NOSUCHNICK, "", ":No such nick/channel");
+                return ;
+            }
+            client->reply(RPL_CHANNELMODEIS, " MODE ", message->get_params()[2] + " " + message->get_params()[1]);
+            mode_notice = ":" + client->get_nickname() + " MODE " + channel->get_name() + " " + message->get_params()[2] + " " + message->get_params()[1] + "\n";
+        }
+
+        // Send a response to the client indicating the mode change
+        channel->broadcast(client, mode_notice);
+    }
 
     return ;
 }

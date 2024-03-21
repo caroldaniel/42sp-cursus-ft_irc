@@ -75,6 +75,11 @@ void        Client::oper(std::string oper_password) {
     return ;
 }
 
+void        Client::unOper(void) {
+    _oper = false;
+    return ;
+}
+
 void        Client::reply(std::string code, std::string command, std::string message) {
     // Concatenate the message and send it to the client
     std::string reply;

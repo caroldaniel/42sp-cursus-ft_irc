@@ -28,6 +28,8 @@ Server::Server(std::string port, std::string password) : _running(false), _socke
     _commands["TOPIC"] = new Topic(this);
     _commands["MODE"] = new Mode(this);
     _commands["PART"] = new Part(this);
+    _commands["UNOPER"] = new UnOper(this);
+    _commands["KICK"] = new Kick(this);
     return ;
 }
 

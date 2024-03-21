@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Oper.cpp                                           :+:      :+:    :+:   */
+/*   UnOper.cpp                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
+/*   By: dofranci <dofranci@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/12 15:00:57 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/12 19:14:31 by cado-car         ###   ########.fr       */
+/*   Created: 2024-03-20 22:36:11 by dofranci          #+#    #+#             */
+/*   Updated: 2024-03-20 22:36:11 by dofranci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,11 @@
 /*                      Constructors and Destructor                           */
 /******************************************************************************/
 
-Oper::Oper(Server *server) : Command("OPER", server) {
+UnOper::UnOper(Server *server) : Command("UNOPER", server) {
     return ;
 }
 
-Oper::~Oper(void) {
+UnOper::~UnOper(void) {
     return ;
 }
 
@@ -28,31 +28,29 @@ Oper::~Oper(void) {
 /*                         Member functions                                   */
 /******************************************************************************/
 
-void Oper::invoke(Client *client, Message *message) {
-    if (client->is_authenticated() && client->is_registered()) {
-        if (message->get_params().size() < 2) {
+void UnOper::invoke(Client *client, Message *message) {
+   if (client->is_authenticated() && client->is_registered()) {
+        // Check if message has enough parameters
+        if (message->get_params().size() < 1) {
             client->reply(ERR_NEEDMOREPARAMS, _name, ": Not enough parameters");
             return ;
         }
 
-        std::string target_name = message->get_params()[0];
-        size_t pos = target_name.find(":");
-        if (pos != std::string::npos) {
-            target_name = target_name.substr(0, pos);
+        // Check if the client has the necessary permissions
+        if (!client->is_oper()) {
+            // Send an error message to the client
+            client->reply(ERR_NOPRIVILEGES, _name, ": Permission Denied");
+            return ;
         }
 
-        Client *target = _server->get_client_by_nickname(target_name);
-        if (target) {
-            if (target->is_registered()) {
-                target->oper(message->get_params()[1]);
-                if (target->is_oper()) {
-                    client->reply(RPL_YOUREOPER, "", target->get_nickname() + ": You are now an IRC operator");
-                } else {
-                    client->reply(ERR_PASSWDMISMATCH, "", target->get_nickname() + ": Password incorrect");
-                }
-            }
-        } else {
+        Client  *target = _server->get_client_by_nickname(message->get_params()[0]);
+        if(target == NULL) {
             client->reply(ERR_NOSUCHNICK, message->get_params()[0], ": No such nick/channel");
+            return ;
+        }
+        else {
+            target->unOper();
+            client->reply("", "", target->get_nickname() + ": You are no longer an IRC operator");
         }
     }
 }

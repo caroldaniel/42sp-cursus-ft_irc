@@ -69,6 +69,7 @@ public:
     void        disconnect(void);
     void        authenticate(std::string password);
     void        oper(std::string oper_password);
+    void        unOper(void);
     void        reply(std::string  code, std::string command, std::string message);
     void        broadcast(Client *sender, std::string target, std::string message);
 

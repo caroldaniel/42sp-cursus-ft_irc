@@ -38,6 +38,8 @@ SRC			= main.cpp \
 			  Topic.cpp \
 			  Mode.cpp \
 			  Part.cpp \
+			  UnOper.cpp \
+			  Kick.cpp \
 
 VPATH		= $(SRC_DIR) \
 			$(SRC_DIR)utils \

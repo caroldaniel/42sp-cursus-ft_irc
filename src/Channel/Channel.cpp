@@ -66,6 +66,14 @@ void    Channel::broadcast(Client *sender, std::string message) {
     return ;
 }
 
+void    Channel::kick(Client *client, Client *target, std::string reason) {
+    if (client->is_oper() || client == target || this->get_chanop_names().find(client->get_nickname()) != std::string::npos) {
+        this->broadcast(client, client->get_nickname() + " KICK " + target->get_nickname() + " from channel " + _name + " :" + reason + "\r\n");
+        this->leave(target);
+    }
+    return ;
+}
+
 /******************************************************************************/
 /*                                 Getters                                    */
 /******************************************************************************/

@@ -74,5 +74,5 @@
 # define ERR_PASSWDMISMATCH         "464" // :Password incorrect
 # define ERR_NOPRIVILEGES           "481" // :Permission Denied 
 # define ERR_CHANOPRIVSNEEDED       "482" // <client> <channel> :You're not channel operator 
-
+# define ERR_USERNOTINCHANNEL       "441" // <nick> <channel> :They aren't on that channel
 #endif

@@ -1,12 +1,12 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   Part.cpp                                           :+:      :+:    :+:   */
+/*   Kick.cpp                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: dofranci <dofranci@student.42.fr>          #+#  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024-03-15 02:15:14 by dofranci          #+#    #+#             */
-/*   Updated: 2024-03-15 02:15:14 by dofranci         ###   ########.fr       */
+/*   Created: 2024-03-20 23:06:58 by dofranci          #+#    #+#             */
+/*   Updated: 2024-03-20 23:06:58 by dofranci         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,11 +16,11 @@
 /*                      Constructors and Destructor                           */
 /******************************************************************************/
 
-Part::Part(Server *server) : Command("Part", server) {
+Kick::Kick(Server *server) : Command("KICK", server) {
     return ;
 }
 
-Part::~Part(void) {
+Kick::~Kick(void) {
     return ;
 }
 
@@ -28,13 +28,14 @@ Part::~Part(void) {
 /*                         Member functions                                   */
 /******************************************************************************/
 
-void    Part::invoke(Client *client, Message *message) {
+void Kick::invoke(Client *client, Message *message) {
     if (client->is_authenticated() && client->is_registered()) {
         // Check if message has enough parameters
-        if (message->get_params().size() == 0) {
+        if (message->get_params().size() < 2) {
             client->reply(ERR_NEEDMOREPARAMS, _name, ": Not enough parameters");
             return ;
         }
+
 
         // Check if is a valid channel
         std::string channel_name = message->get_params()[0];
@@ -42,27 +43,44 @@ void    Part::invoke(Client *client, Message *message) {
             client->reply(ERR_NOSUCHCHANNEL, channel_name, ": No such channel");
             return ;
         }
-        // Check if channel exists
+
         size_t pos = channel_name.find(":");
         if (pos != std::string::npos) {
             channel_name = channel_name.substr(0, pos);
         }
-
         // Check if channel exists
         Channel *channel = _server->get_channel(channel_name);
         if (channel == NULL) {
             client->reply(ERR_NOSUCHCHANNEL, channel_name, ": No such channel");
             return ;
         }
-        
-        // Check if client is on channel
-        if(channel->get_clients_names().find(client->get_nickname()) == std::string::npos) {
-            client->reply(ERR_NOTONCHANNEL, client->get_nickname() + channel_name, ": You're not on that channel");
+
+        // Check if the client has the necessary permissions to kick
+        if (!client->is_oper() && channel->get_chanop_names().find(client->get_nickname()) == std::string::npos) {
+            // Send an error message to the client
+            client->reply(ERR_NOPRIVILEGES, _name, ": Permission Denied");
             return ;
         }
 
-        // Send message to channel
-        channel->broadcast(client, message->get_prefix() + " PART " + channel_name + " :" + message->get_params()[1]);
-        channel->leave(client);
+        // Check if the client is in the channel
+        if(channel->get_clients_names().find(client->get_nickname()) == std::string::npos) {
+            client->reply(ERR_NOTONCHANNEL, channel_name, ": You're not on that channel");
+            return ;
+        }
+
+        // Check if the target is in the channel
+        Client *target = _server->get_client_by_nickname(message->get_params()[1]);
+        if (target == NULL) {
+            client->reply(ERR_NOSUCHNICK, message->get_params()[1], ": No such nick/channel");
+            return ;
+        }
+
+        if(channel->get_clients_names().find(target->get_nickname()) == std::string::npos) {
+            client->reply(ERR_USERNOTINCHANNEL, "",target->get_nickname() + channel->get_name() + ": They aren't on that channel");
+            return ;
+        }
+
+        // Kick the target from the channel
+        channel->kick(client, target, message->get_params().size() > 2 ? message->get_params()[2] : "Kicked");
     }
 }

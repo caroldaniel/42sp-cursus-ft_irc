@@ -32,6 +32,7 @@ public:
 
     void    join(Client *client);
     void    leave(Client *client);
+    void    kick(Client *client, Client *target, std::string reason);
     void    broadcast(Client *sender, std::string message);
 
     // Getters
