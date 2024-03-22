@@ -37,7 +37,7 @@ void Join::invoke(Client *client, Message *message) {
         std::string channel_name = message->get_params()[0];
         if (channel_name[0] != '#') {
             client->reply(ERR_NOSUCHCHANNEL, channel_name, ":No such channel");
-            return;
+            return ;
         }
         Channel *channel = _server->get_channel(channel_name);
         if (channel == NULL) {
@@ -45,7 +45,7 @@ void Join::invoke(Client *client, Message *message) {
             _server->add_channel(channel);
         }
         channel->join(client);
-        
+
         // JOIN message
         std::string join_message = ":" + client->get_nickname() + "!~" + client->get_username() + "@" + client->get_hostname() + " JOIN " + channel->get_name();
         send(client->get_socket(), join_message.c_str(), join_message.size(), 0);
