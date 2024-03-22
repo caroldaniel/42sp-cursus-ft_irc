@@ -54,6 +54,11 @@
 */
 # define RPL_CHANNELMODEIS          "324" // <channel> <mode> <mode params>
 
+/*
+**  Invite Command
+*/
+# define RPL_INVITING               "341" // <client> <nick> <channel>
+
 /******************************************************************************/
 /*                             ERROR REPLIES                                  */
 /******************************************************************************/
@@ -75,5 +80,7 @@
 # define ERR_NOPRIVILEGES           "481" // :Permission Denied 
 # define ERR_CHANOPRIVSNEEDED       "482" // <client> <channel> :You're not channel operator 
 # define ERR_USERNOTINCHANNEL       "441" // <nick> <channel> :They aren't on that channel
+# define ERR_USERONCHANNEL          "443" // <nick> <channel> :is already on channel 
+# define ERR_INVITEONLYCHAN         "473" // <channel> :Cannot join channel (+i)
 
 #endif

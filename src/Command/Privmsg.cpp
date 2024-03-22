@@ -63,3 +63,4 @@ void    Privmsg::invoke(Client *client, Message *message) {
     }
     return ;
 }
+

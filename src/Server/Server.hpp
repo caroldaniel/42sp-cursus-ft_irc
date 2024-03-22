@@ -215,4 +215,13 @@ public:
     void    invoke(Client *client, Message *message);
 };
 
+class Invite : public Command {
+public:
+    Invite(Server *server);
+    ~Invite(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
 #endif

@@ -36,13 +36,6 @@ void Mode::invoke(Client *client, Message *message) {
             return ;
         }
 
-        // Check if the client has the necessary permissions to change the mode
-        if (!client->is_oper()) {
-            // Send an error message to the client
-            client->reply(ERR_NOPRIVILEGES, _name, ": Permission Denied");
-            return ;
-        }
-
         // Check if is a valid channel
         std::string channel_name = message->get_params()[0];
         if (channel_name[0] != '#') {
@@ -64,6 +57,13 @@ void Mode::invoke(Client *client, Message *message) {
         // Check if client is on channel
         if(channel->get_clients_names().find(client->get_nickname()) == std::string::npos) {
             client->reply(ERR_NOTONCHANNEL, client->get_nickname() + channel_name, ": You're not on that channel");
+            return ;
+        }
+
+        // Check if the client has the necessary permissions to change the mode
+        if (!client->is_oper() && channel->get_chanop_names().find(client->get_nickname()) == std::string::npos) {
+            // Send an error message to the client
+            client->reply(ERR_NOPRIVILEGES, _name, ": Permission Denied");
             return ;
         }
 
