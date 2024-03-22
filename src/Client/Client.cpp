@@ -16,7 +16,6 @@
 /*                      Constructors and Destructor                           */
 /******************************************************************************/
 
-
 Client::Client(std::string server_hostname, int fd, int port, std::string password, std::string oper_password, const std::string &hostname) 
 : _server_hostname(server_hostname), _socket(fd), _port(port), _password(password), _oper_password(oper_password), _disconnected(false), _authenticated(false), _oper(false), _username(""), _realname(""), _hostname(hostname) {
     std::cout << "Client created" << std::endl;

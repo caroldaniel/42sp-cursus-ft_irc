@@ -30,6 +30,7 @@ Server::Server(std::string port, std::string password) : _running(false), _socke
     _commands["PART"] = new Part(this);
     _commands["UNOPER"] = new UnOper(this);
     _commands["KICK"] = new Kick(this);
+    _commands["INVITE"] = new Invite(this);
     return ;
 }
 

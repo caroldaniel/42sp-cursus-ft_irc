@@ -37,12 +37,21 @@ void Join::invoke(Client *client, Message *message) {
         std::string channel_name = message->get_params()[0];
         if (channel_name[0] != '#') {
             client->reply(ERR_NOSUCHCHANNEL, channel_name, ":No such channel");
-            return ;
+            return;
         }
+
+
         Channel *channel = _server->get_channel(channel_name);
         if (channel == NULL) {
             channel = new Channel(channel_name);
             _server->add_channel(channel);
+        }
+        else
+        {
+            if (channel->get_invite_only() && channel->get_invited_names().find(client->get_nickname()) == std::string::npos) {
+                client->reply(ERR_INVITEONLYCHAN, channel->get_name(), ":Cannot join channel (+i)");
+                return;
+            }
         }
         channel->join(client);
 
