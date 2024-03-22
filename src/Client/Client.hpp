@@ -45,9 +45,11 @@ private:
     int                     _socket;
     int                     _port;
     const std::string       _password;
+    const std::string       _oper_password;
     
     bool                    _disconnected;
     bool                    _authenticated;
+    bool                    _oper;
 
     std::string             _nickname;
     std::string             _username;
@@ -56,7 +58,7 @@ private:
 
 public:
     // Constructors
-    Client(std::string server_hostname, int fd, int port, std::string password, const std::string &hostname);
+    Client(std::string server_hostname, int fd, int port, std::string password, std::string oper_password,const std::string &hostname);
     Client(const Client &other);
     // Destructor
     ~Client();
@@ -66,6 +68,8 @@ public:
     // Member functions
     void        disconnect(void);
     void        authenticate(std::string password);
+    void        oper(std::string oper_password);
+    void        unOper(void);
     void        reply(std::string  code, std::string command, std::string message);
     void        broadcast(Client *sender, std::string target, std::string message);
 
@@ -80,6 +84,7 @@ public:
 
     bool        is_disconnected(void) const;
     bool        is_authenticated(void) const;
+    bool        is_oper(void) const;
     bool        is_registered(void) const;
 
     // Setters

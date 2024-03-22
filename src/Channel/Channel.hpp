@@ -20,6 +20,9 @@ private:
     std::string             _name;
     std::string             _topic;
     std::vector<Client *>   _clients;
+    std::vector<Client *>   _op_clients;
+
+    bool                    _topic_restriction;
 
 public:
     Channel(std::string name);
@@ -29,6 +32,7 @@ public:
 
     void    join(Client *client);
     void    leave(Client *client);
+    void    kick(Client *client, Client *target, std::string reason);
     void    broadcast(Client *sender, std::string message);
 
     // Getters
@@ -36,6 +40,13 @@ public:
     std::string             get_topic(void);
     std::vector<Client *>   get_clients(void);
     std::string             get_clients_names(void);
+    std::string             get_chanop_names(void);
+    bool                    get_topic_restriction(void);
+    Client                  *get_client_by_nickname(std::string nickname);
+
+    // Setters
+    void                    set_topic(const std::string topic);
+    bool                    set_mode(const std::string target, const std::string mode);
 };
 
 #endif

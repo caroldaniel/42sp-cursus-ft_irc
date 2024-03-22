@@ -28,11 +28,11 @@ Join::~Join(void) {
 /*                         Member functions                                   */
 /******************************************************************************/
 
-void    Join::invoke(Client *client, Message *message) {
+void Join::invoke(Client *client, Message *message) {
     if (client->is_authenticated() && client->is_registered()) {
         if (message->get_params().size() < 1) {
             client->reply(ERR_NEEDMOREPARAMS, _name, ":Not enough parameters");
-            return ;
+            return;
         }
         std::string channel_name = message->get_params()[0];
         if (channel_name[0] != '#') {
@@ -45,11 +45,20 @@ void    Join::invoke(Client *client, Message *message) {
             _server->add_channel(channel);
         }
         channel->join(client);
-        std::string message = ":" + client->get_nickname() + "!~d" + "@" + client->get_hostname() + " JOIN " + channel->get_name();
-        send(client->get_socket(), message.c_str(), message.size(), 0);
-        client->reply(RPL_TOPIC, "", channel->get_name() + " :" + channel->get_topic());
+
+        // JOIN message
+        std::string join_message = ":" + client->get_nickname() + "!~" + client->get_username() + "@" + client->get_hostname() + " JOIN " + channel->get_name();
+        send(client->get_socket(), join_message.c_str(), join_message.size(), 0);
+        channel->broadcast(client, join_message);
+        // Channel Topic
+        if (channel->get_topic() == "No topic") {
+            client->reply(RPL_NOTOPIC, "", client->get_nickname() + " " + channel->get_name() + " :No topic is set");
+        } else {
+            client->reply(RPL_TOPIC, "", channel->get_name() + " :" + channel->get_topic());
+        }
+        // Names of the users that joined the channel
         client->reply(RPL_NAMREPLY, "", "= " + channel->get_name() + " :" + channel->get_clients_names());
         client->reply(RPL_ENDOFNAMES, "", channel->get_name() + " :End of /NAMES list");
     }
-    return ;
+    return;
 }

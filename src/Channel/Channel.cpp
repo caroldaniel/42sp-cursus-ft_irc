@@ -16,7 +16,7 @@
 /*                      Constructors and Destructor                           */
 /******************************************************************************/
 
-Channel::Channel(std::string name) : _name(name), _topic("No topic") {
+Channel::Channel(std::string name) : _name(name), _topic("No topic"), _topic_restriction(true) {
     return ;
 }
 
@@ -66,6 +66,14 @@ void    Channel::broadcast(Client *sender, std::string message) {
     return ;
 }
 
+void    Channel::kick(Client *client, Client *target, std::string reason) {
+    if (client->is_oper() || client == target || this->get_chanop_names().find(client->get_nickname()) != std::string::npos) {
+        this->broadcast(client, client->get_nickname() + " KICK " + target->get_nickname() + " from channel " + _name + " :" + reason + "\r\n");
+        this->leave(target);
+    }
+    return ;
+}
+
 /******************************************************************************/
 /*                                 Getters                                    */
 /******************************************************************************/
@@ -78,6 +86,10 @@ std::string             Channel::get_topic(void) {
     return this->_topic;
 }
 
+bool                    Channel::get_topic_restriction(void) {
+    return this->_topic_restriction;
+}
+
 std::vector<Client *>   Channel::get_clients(void) {
     return this->_clients;
 }
@@ -88,4 +100,72 @@ std::string             Channel::get_clients_names(void) {
         names += (*it)->get_nickname() + " ";
     }
     return names;
+}
+
+std::string             Channel::get_chanop_names(void) {
+    std::string names;
+    for (std::vector<Client *>::iterator it = this->_op_clients.begin(); it != this->_op_clients.end(); it++) {
+        names += (*it)->get_nickname() + " ";
+    }
+    return names;
+}
+
+Client *Channel::get_client_by_nickname(std::string nickname) {
+    for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); it++) {
+        if ((*it)->get_nickname() == nickname) {
+            return *it;
+        }
+    }
+    return NULL;
+}
+
+/******************************************************************************/
+/*                                 Setters                                    */
+/******************************************************************************/
+
+void                    Channel::set_topic(const std::string topic) {
+    this->_topic = topic;
+    return ;
+}
+
+bool Channel::set_mode(const std::string target, const std::string mode) {
+    if (mode[0] == '+') {
+        for (size_t i = 1; i < mode.length(); i++) {
+            switch (mode[i]) {
+                case 't':
+                    this->_topic_restriction = true;
+                    break;
+                case 'o':
+                    Client *client = this->get_client_by_nickname(target);
+                    if (client != NULL) {
+                        this->_op_clients.push_back(client);
+                        break;
+                    } else
+                        return false;
+                // Add more cases for other mode options
+            }
+        }
+    } else if (mode[0] == '-') {
+        for (size_t i = 1; i < mode.length(); i++) {
+            switch (mode[i]) {
+                case 't':
+                    this->_topic_restriction = false;
+                    break;
+                case 'o':
+                    Client *client = this->get_client_by_nickname(target);
+                    if (client != NULL) {
+                        std::vector<Client *>::iterator it = std::find(this->_op_clients.begin(), this->_op_clients.end(), client); 
+                        if (it != this->_op_clients.end()) {
+                            this->_op_clients.erase(it);
+                        }
+                        break;
+                    } else
+                        return false;
+                // Add more cases for other mode options
+            }
+        }
+    }
+    else
+        return false;
+    return true;
 }

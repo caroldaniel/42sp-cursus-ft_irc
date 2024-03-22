@@ -16,8 +16,9 @@
 /*                      Constructors and Destructor                           */
 /******************************************************************************/
 
-Client::Client(std::string server_hostname, int fd, int port, std::string password, const std::string &hostname) 
-: _server_hostname(server_hostname), _socket(fd), _port(port), _password(password), _disconnected(false), _authenticated(false), _username(""), _realname(""), _hostname(hostname) {
+
+Client::Client(std::string server_hostname, int fd, int port, std::string password, std::string oper_password, const std::string &hostname) 
+: _server_hostname(server_hostname), _socket(fd), _port(port), _password(password), _oper_password(oper_password), _disconnected(false), _authenticated(false), _oper(false), _username(""), _realname(""), _hostname(hostname) {
     std::cout << "Client created" << std::endl;
     return ;
 }
@@ -62,6 +63,21 @@ void        Client::authenticate(std::string password) {
         return ;
     }
     _authenticated = true;
+    return ;
+}
+
+void        Client::oper(std::string oper_password) {
+    // compare the password
+    if (oper_password != _oper_password) {
+        _oper = false;
+        return ;
+    }
+    _oper = true;
+    return ;
+}
+
+void        Client::unOper(void) {
+    _oper = false;
     return ;
 }
 
@@ -126,6 +142,11 @@ bool        Client::is_disconnected(void) const {
 bool        Client::is_authenticated(void) const {
     return _authenticated;
 }
+
+bool        Client::is_oper(void) const {
+    return _oper;
+}
+
 bool        Client::is_registered(void) const {
     return !_nickname.empty() && !_username.empty() && !_realname.empty();
 }

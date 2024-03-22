@@ -34,6 +34,12 @@ SRC			= main.cpp \
 			  Join.cpp \
 			  List.cpp \
 			  Privmsg.cpp \
+			  Oper.cpp \
+			  Topic.cpp \
+			  Mode.cpp \
+			  Part.cpp \
+			  UnOper.cpp \
+			  Kick.cpp \
 
 VPATH		= $(SRC_DIR) \
 			$(SRC_DIR)utils \
@@ -75,10 +81,9 @@ fclean:		clean
 			@printf "$(GR)Binary files cleaned successfully!$(RC)\n"
 
 leak:		$(NAME)
-			valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes ./$(NAME) 9000 123
+			valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes ./$(NAME) 4242 123
 
 .PHONY:		all re clean fclean
-
 
 # **************************************************************************** #
 # 								COLORS									       #

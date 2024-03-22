@@ -161,4 +161,58 @@ public:
     void    invoke(Client *client, Message *message);
 };
 
+class Oper : public Command {
+public:
+    Oper(Server *server);
+    ~Oper(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
+class Topic : public Command {
+public:
+    Topic(Server *server);
+    ~Topic(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
+class Mode : public Command {
+public:
+    Mode(Server *server);
+    ~Mode(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
+class Part : public Command {
+public:
+    Part(Server *server);
+    ~Part(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
+class UnOper : public Command {
+public:
+    UnOper(Server *server);
+    ~UnOper(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
+class Kick : public Command {
+public:
+    Kick(Server *server);
+    ~Kick(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
 #endif

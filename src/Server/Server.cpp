@@ -24,6 +24,12 @@ Server::Server(std::string port, std::string password) : _running(false), _socke
     _commands["LIST"] = new List(this);
     _commands["JOIN"] = new Join(this);
     _commands["PRIVMSG"] = new Privmsg(this);
+    _commands["OPER"] = new Oper(this);
+    _commands["TOPIC"] = new Topic(this);
+    _commands["MODE"] = new Mode(this);
+    _commands["PART"] = new Part(this);
+    _commands["UNOPER"] = new UnOper(this);
+    _commands["KICK"] = new Kick(this);
     return ;
 }
 
@@ -127,8 +133,8 @@ void Server::on_client_connect(void) {
     if (result != 0) {
         throw std::runtime_error(std::string(gai_strerror(result)));
     }
-    
-    Client  *client = new Client(_hostname, client_socket, ntohs(client_address.sin_port), _password, hostname);  
+    const std::string oper_password = "operator";
+    Client  *client = new Client(_hostname, client_socket, ntohs(client_address.sin_port), _password, oper_password, hostname);  
      
     _clients.insert(std::make_pair(client_socket, client));
     std::cout << client->get_hostname() << ":" << client->get_port() << " has connected" << std::endl;
@@ -162,7 +168,7 @@ void Server::on_client_message(int client_fd, std::string message) {
     Message *msg;
 
     while (std::getline(iss, line)) {
-        std::cout << "Received: " << line << std::endl;
+        std::cout << "Received from " << _clients[client_fd]->get_nickname() << ": " << line << std::endl;
         try {
             msg = new Message(line);
             if (_commands.find(msg->get_command()) == _commands.end())
