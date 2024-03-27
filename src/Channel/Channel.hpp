@@ -14,17 +14,23 @@
 # define CHANNEL_HPP
 
 # include "../Client/Client.hpp"
+# include "../Message/Message.hpp"
 
 class Channel {
 private:
     std::string             _name;
     std::string             _topic;
+    std::string             _key;
+    int                     _user_limit;
+    int                     _user_quantity;
     std::vector<Client *>   _clients;
     std::vector<Client *>   _op_clients;
     std::vector<Client *>   _invited_clients;
 
     bool                    _topic_restriction;
     bool                    _invite_only;
+    bool                    _has_key;
+    bool                    _has_user_limit;
 
 public:
     Channel(std::string name);
@@ -39,19 +45,26 @@ public:
     void    broadcast(Client *sender, std::string message);
 
     // Getters
-    std::string             get_name(void);
-    std::string             get_topic(void);
-    std::vector<Client *>   get_clients(void);
-    std::string             get_clients_names(void);
-    std::string             get_chanop_names(void);
-    std::string             get_invited_names(void);
-    bool                    get_topic_restriction(void);
-    bool                    get_invite_only(void);
-    Client                  *get_client_by_nickname(std::string nickname, std::vector<Client *> clients);
+    std::string             get_name(void) const;
+    std::string             get_topic(void) const;
+    std::vector<Client *>   get_clients(void) const;
+    std::string             get_clients_names(void) const;
+    std::string             get_chanop_names(void) const;
+    std::string             get_invited_names(void) const;
+    std::string             get_key(void) const;
+    int                     get_user_quantity(void) const;
+    int                     get_user_limit(void) const;
+    bool                    get_topic_restriction(void) const;
+    bool                    get_invite_only(void) const; 
+    bool                    get_has_key(void) const;
+    bool                    get_has_user_limit(void) const;
+    Client                  *get_client_by_nickname(std::string nickname, std::vector<Client *> &clients);
 
     // Setters
     void                    set_topic(const std::string topic);
-    bool                    set_mode(const std::string target, const std::string mode);
+    void                    set_key(const std::string key);
+    void                    set_user_limit(const int user_limit);
+    bool                    set_mode(Message *message);
 };
 
 #endif

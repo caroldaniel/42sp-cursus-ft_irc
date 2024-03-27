@@ -193,7 +193,7 @@ void Server::create_socket(void) {
     if (_socket == -1) {
         throw std::runtime_error("Error creating server socket");
     }
-    
+
     // Make the server socket reusable
     int enable = 1;
     if (setsockopt(_socket, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable)) == -1) {
@@ -216,7 +216,7 @@ void Server::create_socket(void) {
     if (bind(_socket, (struct sockaddr *)&server_address, sizeof(server_address)) == -1) {
         throw std::runtime_error("Error binding server socket to port");
     }
-    
+
     // Listen for connections
     if (listen(_socket, 5) == -1) {
         throw std::runtime_error("Error listening on server socket");

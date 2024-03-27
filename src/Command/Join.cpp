@@ -52,6 +52,14 @@ void Join::invoke(Client *client, Message *message) {
                 client->reply(ERR_INVITEONLYCHAN, channel->get_name(), ":Cannot join channel (+i)");
                 return;
             }
+            if(channel->get_has_key() && message->get_params()[1] != channel->get_key()) {
+                client->reply(ERR_BADCHANNELKEY, channel->get_name(), ":Cannot join channel (+k)");
+                return;
+            }
+            if(channel->get_has_user_limit() && channel->get_user_quantity() >= channel->get_user_limit()) {
+                client->reply(ERR_CHANNELISFULL, channel->get_name(), ":Cannot join channel (+l)");
+                return;
+            }
         }
         channel->join(client);
 

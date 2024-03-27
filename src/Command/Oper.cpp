@@ -46,7 +46,7 @@ void Oper::invoke(Client *client, Message *message) {
             if (target->is_registered()) {
                 target->oper(message->get_params()[1]);
                 if (target->is_oper()) {
-                    client->reply(RPL_YOUREOPER, "", target->get_nickname() + ": You are now an IRC operator");
+                    target->reply(RPL_YOUREOPER, "", target->get_nickname() + ": You are now an IRC operator");
                 } else {
                     client->reply(ERR_PASSWDMISMATCH, "", target->get_nickname() + ": Password incorrect");
                 }

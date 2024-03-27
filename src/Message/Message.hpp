@@ -17,7 +17,8 @@
 # include <vector>
 # include <string>
 # include <stdexcept>
-
+# include <algorithm>
+# include <cctype>
 # include "../utils/utils.hpp"
 
 class Message {
