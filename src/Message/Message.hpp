@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 22:04:36 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/11 20:35:10 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/06 18:18:26 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@
 # include <map>
 # include <vector>
 # include <string>
+# include <algorithm>
 # include <stdexcept>
 
 # include "../utils/utils.hpp"

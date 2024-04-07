@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 12:03:38 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/12 21:06:07 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/06 18:14:23 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,8 +134,7 @@ void Server::on_client_connect(void) {
     if (result != 0) {
         throw std::runtime_error(std::string(gai_strerror(result)));
     }
-    const std::string oper_password = "operator";
-    Client  *client = new Client(_hostname, client_socket, ntohs(client_address.sin_port), _password, oper_password, hostname);  
+    Client  *client = new Client(_hostname, client_socket, ntohs(client_address.sin_port), _password, hostname);  
      
     _clients.insert(std::make_pair(client_socket, client));
     std::cout << client->get_hostname() << ":" << client->get_port() << " has connected" << std::endl;
