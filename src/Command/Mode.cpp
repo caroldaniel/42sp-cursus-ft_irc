@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 00:39:49 by dofranci          #+#    #+#             */
-/*   Updated: 2024/04/06 23:34:38 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/07 19:21:21 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,19 +31,20 @@ Mode::~Mode(void) {
 void Mode::invoke(Client *client, Message *message) {
     if (client->is_authenticated() && client->is_registered()) {
         // Check if message has enough parameters
-        if (message->get_params().size() < 2) {
+        if (message->get_params().size() < 1) {
             client->reply(ERR_NEEDMOREPARAMS, _name, ":Not enough parameters");
             return ;
         }
 
         std::string channel_name = message->get_params()[0];
-        
+
         // Check if channel name has IP address after ':'. If so, remove it.
         if (channel_name.find(":") != std::string::npos)
             channel_name = channel_name.substr(0, channel_name.find(":"));
 
-        // Check if channel exists
         Channel *channel = _server->get_channel(channel_name);
+        
+        // Check if channel exists
         if (channel == NULL) {
             client->reply(ERR_NOSUCHCHANNEL, channel_name, ":No such channel");
             return ;
@@ -55,6 +56,12 @@ void Mode::invoke(Client *client, Message *message) {
             return ;
         }
 
+        // Check if command was invoked only with the channel name
+        if (message->get_params().size() == 1) {           
+            client->reply(RPL_CHANNELMODEIS, channel->get_name(), channel->get_modes());
+            return ;
+        }
+        
         // Check if the client has the necessary permissions to change the mode
         if (!client->is_oper() && channel->get_chanop_names().find(client->get_nickname()) == std::string::npos) {
             // Send an error message to the client

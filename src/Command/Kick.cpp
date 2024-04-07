@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/20 23:06:58 by dofranci          #+#    #+#             */
-/*   Updated: 2024/04/06 18:43:44 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/07 19:27:52 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,8 +36,13 @@ void Kick::invoke(Client *client, Message *message) {
             return ;
         }
 
-        // Check if channel exists
         std::string channel_name = message->get_params()[0];
+        
+        // Check if channel name has IP address after ':'. If so, remove it.
+        if (channel_name.find(":") != std::string::npos)
+            channel_name = channel_name.substr(0, channel_name.find(":"));
+        
+        // Check if channel exists
         Channel *channel = _server->get_channel(channel_name);
         if (channel == NULL) {
             client->reply(ERR_NOSUCHCHANNEL, channel_name, ":No such channel");
@@ -66,7 +71,7 @@ void Kick::invoke(Client *client, Message *message) {
 
         // Check if the target is in the channel
         if(channel->get_clients_names().find(target->get_nickname()) == std::string::npos) {
-            client->reply(ERR_USERNOTINCHANNEL, "",target->get_nickname() + channel->get_name() + ":They aren't on that channel");
+            client->reply(ERR_USERNOTINCHANNEL, "", ":" + target->get_nickname() + " is not on " + channel->get_name());
             return ;
         }
 

@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 10:06:24 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/06 23:41:56 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/07 18:52:40 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@
 /*
 **  List Command
 */
+# define RPL_CAP                    "302" // <client> <subcommand> :are supported capabilities
 # define RPL_LISTSTART              "321" // Channel :Users  Name
 # define RPL_LIST                   "322" // <channel> <# visible> :<topic>
 # define RPL_LISTEND                "323" // :End of /LIST
@@ -54,6 +55,8 @@
 */
 # define RPL_CHANNELMODEIS          "324" // <channel> <mode> <mode params>
 # define RPL_UMODEIS                "221" // <client> <mode>
+# define RPL_WHOREPLY               "352" // <client> <username> <hostname> <servername> <nick> <H|G>[*][@|+] :<hopcount> <realname>
+# define RPL_ENDOFWHO               "315" // <mask> :End of WHO list
 
 /*
 **  Invite Command

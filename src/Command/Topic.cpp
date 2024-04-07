@@ -58,16 +58,16 @@ void Topic::invoke(Client *client, Message *message) {
         // Check if client has permission to change topic
         if(channel->get_topic_restriction()) {
             if (!client->is_oper() && channel->get_chanop_names().find(client->get_nickname()) == std::string::npos) {  
-                client->reply(ERR_CHANOPRIVSNEEDED, "", client->get_nickname() + " " + channel->get_name() + ":You're not channel operator");
+                client->reply(ERR_CHANOPRIVSNEEDED, channel_name, ":You're not channel operator");
                 return ;
             }
         }
         // If no topic is set, return RPL_NOTOPIC
         if (message->get_params().size() == 1) {
             if (channel->get_topic() == "") {
-                client->reply(RPL_NOTOPIC, "", client->get_nickname() + " " + channel->get_name() + ":No topic is set");
+                client->reply(RPL_NOTOPIC, channel_name, ":No topic is set");
             } else {
-                client->reply(RPL_TOPIC, "", channel->get_name() + " :" + channel->get_topic());
+                client->reply(RPL_TOPIC, channel_name, ":" + channel->get_topic());
             }
         }
 
@@ -75,7 +75,7 @@ void Topic::invoke(Client *client, Message *message) {
         if (message->get_params().size() == 2) {
             std::string topic = message->get_params()[1];
             channel->set_topic(topic);
-            client->reply(RPL_TOPIC, "", channel->get_name() + " :" + channel->get_topic());
+            channel->broadcast(client, message->get_prefix() + "TOPIC " + channel_name + " :" + topic);
         }
     }
 }

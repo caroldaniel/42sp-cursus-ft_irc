@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 02:15:14 by dofranci          #+#    #+#             */
-/*   Updated: 2024/04/06 23:38:01 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/07 19:36:56 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,7 @@ void    Part::invoke(Client *client, Message *message) {
         }
 
         // Send message to channel
-        channel->broadcast(client, message->get_prefix() + " PART " + channel_name + " :" + message->get_params()[1]);
+        channel->broadcast(client, message->get_prefix() + "PART " + channel_name + " :" + message->get_params()[1]);
         channel->leave(client);
     }
 }

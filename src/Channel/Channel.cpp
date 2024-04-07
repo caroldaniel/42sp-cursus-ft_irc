@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 09:47:16 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/06 23:47:01 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/07 19:45:56 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,6 +62,15 @@ void    Channel::remove_chanop(Client *client) {
     return ;
 }
 
+bool    Channel::is_chanop(std::string nickname) {
+    for (std::vector<Client *>::iterator it = this->_op_clients.begin(); it != this->_op_clients.end(); it++) {
+        if ((*it)->get_nickname() == nickname) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void    Channel::invite(Client *client) {
     this->_invited_clients.push_back(client);
     return ;
@@ -76,9 +85,9 @@ void    Channel::leave(Client *client) {
 }
 
 void    Channel::kick(Client *client, Client *target, std::string reason) {
-    if (client->is_oper() || client == target || this->get_chanop_names().find(client->get_nickname()) != std::string::npos) {
-        this->broadcast(client, client->get_nickname() + " KICK " + _name + " " + target->get_nickname() + " :" + reason + "\r\n");
-        this->leave(target);
+    if (client == target || client->is_oper() || is_chanop(client->get_nickname())) {
+        broadcast(client, client->get_nickname() + " KICK " + _name + " " + target->get_nickname() + " :" + reason + "\r\n");
+        leave(target);
     }
     return ;
 }
@@ -135,7 +144,7 @@ void     Channel::set_mode(char mode, std::vector<std::string> params, Client *c
             client->reply(ERR_UNKNOWNMODE, params[1], ":Unknown mode char");
             break;
     }
-    std::string response = ":" + client->get_nickname() + " MODE " + _name + " " + message;
+    std::string response = "MODE " + _name + " " + message;
     broadcast(client, response);
 }
 
@@ -179,7 +188,7 @@ void     Channel::unset_mode(char mode, std::vector<std::string> params, Client 
             client->reply(ERR_UNKNOWNMODE, params[1], ":Unknown mode char");
             break;
     }
-    std::string response = ":" + client->get_nickname() + " MODE " + _name + " " + message;
+    std::string response = "MODE " + _name + " " + message;
     this->broadcast(client, response);
     return ;
 }
@@ -212,10 +221,28 @@ bool                    Channel::get_invite_only(void) {
     return this->_invite_only;
 }
 
+std::string             Channel::get_modes(void) {
+    std::string modes = "+";
+    if (this->_topic_restriction)
+        modes += "t";
+    if (this->_invite_only)
+        modes += "i";
+    if (this->_channel_key != "")
+        modes += "k";
+    if (this->_op_clients.size() > 0)
+        modes += "o";
+
+    // if modes is empty, return "No modes set"
+    if (modes == "+")
+        return ":No modes set";
+    return modes;
+}
+
 std::string Channel::get_clients_names(void)
 {
     std::string names;
     for (std::vector<Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++) {
+        names += is_chanop((*it)->get_nickname()) ? "@" : "";
         names += (*it)->get_nickname() + " ";
     }
     return names;

@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 15:00:57 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/06 23:24:01 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/07 18:41:04 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,15 +73,17 @@ void Join::invoke(Client *client, Message *message) {
         // JOIN message
         std::string join_message = ":" + client->get_nickname() + "!~" + client->get_username() + "@" + client->get_hostname() + " JOIN " + channel->get_name();
         send(client->get_socket(), join_message.c_str(), join_message.size(), 0);
+
         // Channel Topic
         if (channel->get_topic() == "") {
             client->reply(RPL_NOTOPIC, "", client->get_nickname() + " " + channel->get_name() + " :No topic is set");
         } else {
             client->reply(RPL_TOPIC, "", channel->get_name() + " :" + channel->get_topic());
         }
+        
         // Names of the users that joined the channel
         client->reply(RPL_NAMREPLY, "", "= " + channel->get_name() + " :" + channel->get_clients_names());
-        client->reply(RPL_ENDOFNAMES, "", channel->get_name() + " :End of /NAMES list");
+        client->reply(RPL_ENDOFNAMES, "", channel->get_name() + " :End of NAMES list");
 
         // Broadcast JOIN message to all clients in the channel
         join_message = "has joined " + channel->get_name();

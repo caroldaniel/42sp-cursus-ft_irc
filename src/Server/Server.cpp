@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 12:03:38 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/06 18:14:23 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/07 18:53:45 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ Server::Server(std::string port, std::string password) : _running(false), _socke
     _commands["UNOPER"] = new UnOper(this);
     _commands["KICK"] = new Kick(this);
     _commands["INVITE"] = new Invite(this);
+    _commands["WHO"] = new Who(this);
+    _commands["CAP"] = new Cap(this);
     return ;
 }
 
@@ -106,8 +108,20 @@ Channel *Server::get_channel(std::string name) {
     return NULL;
 }
 
+std::string Server::get_hostname(void) {
+    return _hostname;
+}
+
 std::vector<Channel *> Server::list_channels(void) {
     return _channels;
+}
+
+std::vector<Client *> Server::list_clients(void) {
+    std::vector<Client *> clients;
+    for (std::map<int, Client *>::iterator it = _clients.begin(); it != _clients.end(); it++) {
+        clients.push_back(it->second);
+    }
+    return clients;
 }
 
 /******************************************************************************/

@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 09:47:13 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/06 20:30:55 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/07 18:46:41 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ public:
     void                    join(Client *client);
     void                    add_chanop(Client *client);
     void                    remove_chanop(Client *client);
+    bool                    is_chanop(std::string nickname);
     void                    invite(Client *client);
     void                    leave(Client *client);
     void                    kick(Client *client, Client *target, std::string reason);
@@ -53,6 +54,7 @@ public:
     std::string             get_invited_names(void);
     bool                    get_topic_restriction(void);
     bool                    get_invite_only(void);
+    std::string             get_modes(void);
     Client                  *get_client_by_nickname(std::string nickname, std::vector<Client *> clients);
 
     // Setters
