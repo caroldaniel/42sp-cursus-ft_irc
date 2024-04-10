@@ -88,8 +88,10 @@ std::string                 Message::get_prefix(void) const {
     return _prefix;
 }
 
-std::string                 Message::get_command(void) const {
-    return _command;
+std::string Message::get_command(void) const {
+    std::string uppercaseCommand = _command;
+    std::transform(uppercaseCommand.begin(), uppercaseCommand.end(), uppercaseCommand.begin(), ::toupper);
+    return uppercaseCommand;
 }
 
 std::vector<std::string>    Message::get_params(void) const {

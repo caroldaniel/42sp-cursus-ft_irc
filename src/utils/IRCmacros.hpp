@@ -88,6 +88,8 @@
 # define ERR_USERNOTINCHANNEL       "441" // <nick> <channel> :They aren't on that channel
 # define ERR_USERONCHANNEL          "443" // <nick> <channel> :is already on channel 
 # define ERR_INVITEONLYCHAN         "473" // <channel> :Cannot join channel (+i)
+# define ERR_BADCHANNELKEY          "475" // <channel> :Cannot join channel (+k)
+# define ERR_CHANNELISFULL          "471" // <channel> :Cannot join channel (+l)
 # define ERR_NOTOPER                "481" // <nick> :is not an IRC operator
 
 #endif

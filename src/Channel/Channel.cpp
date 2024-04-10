@@ -16,7 +16,7 @@
 /*                      Constructors and Destructor                           */
 /******************************************************************************/
 
-Channel::Channel(std::string name) : _name(name), _topic(""), _topic_restriction(true), _invite_only(false), _channel_key("") {
+Channel::Channel(std::string name) : _name(name), _topic("No topic"), _key(""), _user_limit(0), _user_quantity(0),_topic_restriction(true), _invite_only(false), _has_key(false), _has_user_limit(false) {
     return ;
 }
 
@@ -44,8 +44,10 @@ Channel &Channel::operator=(const Channel &other) {
 /******************************************************************************/
 
 void    Channel::join(Client *client) {
-    if (get_client_by_nickname(client->get_nickname(), _clients) == NULL)
+    if (get_client_by_nickname(client->get_nickname(), _clients) == NULL) {
         _clients.push_back(client);
+        _user_quantity++;
+    }
     return ;
 }
 
@@ -81,6 +83,7 @@ void    Channel::leave(Client *client) {
     if (it != this->_clients.end()) {
         this->_clients.erase(it);
     }
+    this->_user_quantity--;
     return ;
 }
 
@@ -137,8 +140,18 @@ void     Channel::set_mode(char mode, std::vector<std::string> params, Client *c
                 client->reply(ERR_NEEDMOREPARAMS, "MODE", ":Not enough parameters");
                 break ;
             }
-            _channel_key = params[2];
-            message = "+k :Channel now is keyed. Key is: " + params[0];
+            _key = params[2];
+            _has_key = true;
+            message = "+k :Channel now is keyed. Key is: " + params[2];
+            break;
+        case 'l':
+            if (params.size() < 3) {
+                client->reply(ERR_NEEDMOREPARAMS, "MODE", ":Not enough parameters");
+                break ;
+            }
+            this->_user_limit = std::atoi(params[2].c_str());
+            this->_has_user_limit = true;
+            message = "+l :Channel now has user limit of " + params[2];
             break;
         default:
             client->reply(ERR_UNKNOWNMODE, params[1], ":Unknown mode char");
@@ -181,8 +194,14 @@ void     Channel::unset_mode(char mode, std::vector<std::string> params, Client 
             message = "-o :Removed " + params[2] + " as channel operator";
             break;
         case 'k':
-            _channel_key = "";
+            _key = "";
+            _has_key = false;
             message = "-k :Channel now is not keyed";
+            break;
+        case 'l':
+            _user_limit = 0;
+            _has_user_limit = false;
+            message = "-l :Channel now has no user limit";
             break;
         default:
             client->reply(ERR_UNKNOWNMODE, params[1], ":Unknown mode char");
@@ -197,28 +216,40 @@ void     Channel::unset_mode(char mode, std::vector<std::string> params, Client 
 /*                                 Getters                                    */
 /******************************************************************************/
 
-std::string             Channel::get_name(void) {
+std::string             Channel::get_name(void) const {
     return this->_name;
 }
 
-std::string             Channel::get_topic(void) {
+std::string             Channel::get_topic(void) const {
     return this->_topic;
 }
 
-std::string             Channel::get_channel_key(void) {
-    return this->_channel_key;
+std::string            Channel::get_key(void) const {
+    return this->_key;
 }
 
-std::vector<Client *>   Channel::get_clients(void) {
+std::string             Channel::get_chanop_names(void) const {
+    std::string names;
+    for (std::vector<Client *>::const_iterator it = this->_op_clients.begin(); it != this->_op_clients.end(); it++) {
+        names += (*it)->get_nickname() + " ";
+    }
+    return names;
+}
+
+std::string             Channel::get_invited_names(void) const {
+    std::string names;
+    for (std::vector<Client *>::const_iterator it = this->_invited_clients.begin(); it != this->_invited_clients.end(); it++) {
+        names += (*it)->get_nickname() + " ";
+    }
+    return names;
+}
+
+std::vector<Client *>   Channel::get_clients(void) const {
     return this->_clients;
 }
 
-bool                    Channel::get_topic_restriction(void) {
-    return this->_topic_restriction;
-}
-
-bool                    Channel::get_invite_only(void) {
-    return this->_invite_only;
+int                    Channel::get_user_quantity(void) const {
+    return this->_user_quantity;
 }
 
 std::string             Channel::get_modes(void) {
@@ -227,7 +258,7 @@ std::string             Channel::get_modes(void) {
         modes += "t";
     if (this->_invite_only)
         modes += "i";
-    if (this->_channel_key != "")
+    if (this->_key != "")
         modes += "k";
     if (this->_op_clients.size() > 0)
         modes += "o";
@@ -248,24 +279,28 @@ std::string Channel::get_clients_names(void)
     return names;
 }
 
-std::string             Channel::get_chanop_names(void) {
-    std::string names;
-    for (std::vector<Client *>::iterator it = this->_op_clients.begin(); it != this->_op_clients.end(); it++) {
-        names += (*it)->get_nickname() + " ";
-    }
-    return names;
+int                   Channel::get_user_limit(void) const {
+    return this->_user_limit;
 }
 
-std::string             Channel::get_invited_names(void) {
-    std::string names;
-    for (std::vector<Client *>::iterator it = this->_invited_clients.begin(); it != this->_invited_clients.end(); it++) {
-        names += (*it)->get_nickname() + " ";
-    }
-    return names;
+bool                    Channel::get_topic_restriction(void) const {
+    return this->_topic_restriction;
 }
 
-Client *Channel::get_client_by_nickname(std::string nickname, std::vector<Client *> clients) {
-    for (std::vector<Client*>::iterator it = clients.begin(); it != clients.end(); it++) {
+bool                    Channel::get_invite_only(void) const {
+    return this->_invite_only;
+}
+
+bool                    Channel::get_has_key(void) const {
+    return this->_has_key;
+}
+
+bool                    Channel::get_has_user_limit(void) const {
+    return this->_has_user_limit;
+}
+
+Client *Channel::get_client_by_nickname(std::string nickname, std::vector<Client *> &clients) {
+    for (std::vector<Client*>::const_iterator it = clients.begin(); it != clients.end(); it++) {
         if ((*it)->get_nickname() == nickname) {
             return *it;
         }
@@ -282,7 +317,3 @@ void                    Channel::set_topic(const std::string topic) {
     return ;
 }
 
-void                    Channel::set_channel_key(const std::string key) {
-    this->_channel_key = key;
-    return ;
-}
