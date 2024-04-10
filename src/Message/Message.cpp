@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 22:04:27 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/11 20:34:17 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/06 18:18:59 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,8 +60,9 @@ void    Message::_tokenize(std::string message) {
         split_msg.erase(split_msg.begin());
     }
 
-    // The next token is the command
+    // The next token is the command, and should be stored in all uppercase
     _command = split_msg[0];
+    std::transform(_command.begin(), _command.end(), _command.begin(), ::toupper);
 
     // The rest of the tokens are parameters
     for (size_t i = 1; i < split_msg.size(); i++) {

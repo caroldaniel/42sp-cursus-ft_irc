@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 12:03:43 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/12 20:58:58 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/07 18:50:56 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,10 +54,12 @@ public:
     Server  &operator=(const Server &other);
 
     // Getters
-    Client  *get_client(int client_fd);
-    Client  *get_client_by_nickname(std::string nickname);
-    Channel *get_channel(std::string name);
-    std::vector<Channel *> list_channels(void);
+    Client                  *get_client(int client_fd);
+    Client                  *get_client_by_nickname(std::string nickname);
+    Channel                 *get_channel(std::string name);
+    std::string             get_hostname(void);
+    std::vector<Channel *>  list_channels(void);
+    std::vector<Client *>   list_clients(void);
 
     // Member functions on Client's actions
     void    on_client_connect(void);
@@ -219,6 +221,24 @@ class Invite : public Command {
 public:
     Invite(Server *server);
     ~Invite(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
+class Who : public Command {
+public:
+    Who(Server *server);
+    ~Who(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
+class Cap : public Command {
+public:
+    Cap(Server *server);
+    ~Cap(void);
 
     // Member functions
     void    invoke(Client *client, Message *message);

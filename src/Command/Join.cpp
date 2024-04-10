@@ -40,7 +40,6 @@ void Join::invoke(Client *client, Message *message) {
             return;
         }
 
-
         Channel *channel = _server->get_channel(channel_name);
         if (channel == NULL) {
             channel = new Channel(channel_name);

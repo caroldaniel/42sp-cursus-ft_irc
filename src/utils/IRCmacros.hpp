@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 10:06:24 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/12 21:00:13 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/07 18:52:40 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@
 /*
 **  List Command
 */
+# define RPL_CAP                    "302" // <client> <subcommand> :are supported capabilities
 # define RPL_LISTSTART              "321" // Channel :Users  Name
 # define RPL_LIST                   "322" // <channel> <# visible> :<topic>
 # define RPL_LISTEND                "323" // :End of /LIST
@@ -53,6 +54,9 @@
 **  Mode Command
 */
 # define RPL_CHANNELMODEIS          "324" // <channel> <mode> <mode params>
+# define RPL_UMODEIS                "221" // <client> <mode>
+# define RPL_WHOREPLY               "352" // <client> <username> <hostname> <servername> <nick> <H|G>[*][@|+] :<hopcount> <realname>
+# define RPL_ENDOFWHO               "315" // <mask> :End of WHO list
 
 /*
 **  Invite Command
@@ -77,6 +81,8 @@
 # define ERR_NEEDMOREPARAMS         "461" // :Not enough parameters
 # define ERR_ALREADYREGISTRED       "462" // :You may not reregister
 # define ERR_PASSWDMISMATCH         "464" // :Password incorrect
+# define ERR_UNKNOWNMODE            "472" // :Unknown mode char
+# define ERR_BADCHANNELKEY          "475" // <channel> :Cannot join channel (+k)
 # define ERR_NOPRIVILEGES           "481" // :Permission Denied 
 # define ERR_CHANOPRIVSNEEDED       "482" // <client> <channel> :You're not channel operator 
 # define ERR_USERNOTINCHANNEL       "441" // <nick> <channel> :They aren't on that channel
@@ -84,4 +90,6 @@
 # define ERR_INVITEONLYCHAN         "473" // <channel> :Cannot join channel (+i)
 # define ERR_BADCHANNELKEY          "475" // <channel> :Cannot join channel (+k)
 # define ERR_CHANNELISFULL          "471" // <channel> :Cannot join channel (+l)
+# define ERR_NOTOPER                "481" // <nick> :is not an IRC operator
+
 #endif

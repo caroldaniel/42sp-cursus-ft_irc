@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 09:47:16 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/12 21:36:27 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/07 19:45:56 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,9 +44,33 @@ Channel &Channel::operator=(const Channel &other) {
 /******************************************************************************/
 
 void    Channel::join(Client *client) {
-    this->_clients.push_back(client);
-    this->_user_quantity++;
+    if (get_client_by_nickname(client->get_nickname(), _clients) == NULL) {
+        _clients.push_back(client);
+        _user_quantity++;
+    }
     return ;
+}
+
+void    Channel::add_chanop(Client *client) {
+    this->_op_clients.push_back(client);
+    return ;
+}
+
+void    Channel::remove_chanop(Client *client) {
+    std::vector<Client *>::iterator it = std::find(this->_op_clients.begin(), this->_op_clients.end(), client); 
+    if (it != this->_op_clients.end()) {
+        this->_op_clients.erase(it);
+    }
+    return ;
+}
+
+bool    Channel::is_chanop(std::string nickname) {
+    for (std::vector<Client *>::iterator it = this->_op_clients.begin(); it != this->_op_clients.end(); it++) {
+        if ((*it)->get_nickname() == nickname) {
+            return true;
+        }
+    }
+    return false;
 }
 
 void    Channel::invite(Client *client) {
@@ -63,6 +87,14 @@ void    Channel::leave(Client *client) {
     return ;
 }
 
+void    Channel::kick(Client *client, Client *target, std::string reason) {
+    if (client == target || client->is_oper() || is_chanop(client->get_nickname())) {
+        broadcast(client, client->get_nickname() + " KICK " + _name + " " + target->get_nickname() + " :" + reason + "\r\n");
+        leave(target);
+    }
+    return ;
+}
+
 void    Channel::broadcast(Client *sender, std::string message) {
     for (std::vector<Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++) {
         if (*it != sender) {
@@ -73,98 +105,111 @@ void    Channel::broadcast(Client *sender, std::string message) {
     return ;
 }
 
-void    Channel::kick(Client *client, Client *target, std::string reason) {
-    if (client->is_oper() || client == target || this->get_chanop_names().find(client->get_nickname()) != std::string::npos) {
-        this->broadcast(client, client->get_nickname() + " KICK " + _name + " " + target->get_nickname() + " :" + reason + "\r\n");
-        this->leave(target);
+void     Channel::set_mode(char mode, std::vector<std::string> params, Client *client) {
+    
+    std::string message = "";
+
+    switch (mode) {
+        case 't':
+            _topic_restriction = true;
+            message = "+t :Topic restriction is enabled";
+            break;
+        case 'i':
+            _invite_only = true;
+            message = "+i :Invite only is enabled";
+            break;
+        case 'o':
+            if (params.size() < 3) {
+                client->reply(ERR_NEEDMOREPARAMS, "MODE", ":Not enough parameters");
+                break ;
+            }
+            if (client == NULL) {
+                client->reply(ERR_NOSUCHNICK, params[2], ":No such nick/channel");
+                break ;
+            }
+            if (get_client_by_nickname(params[2], _clients) == NULL) {
+                client->reply(ERR_USERNOTINCHANNEL, params[2], ":User is not on that channel");
+                break ;
+            }
+            if (get_chanop_names().find(params[2]) == std::string::npos)
+                add_chanop(get_client_by_nickname(params[2], _clients));            
+            message = "+o :Added " + params[2] + " as channel operator";
+            break;
+        case 'k':
+            if (params.size() < 3) {
+                client->reply(ERR_NEEDMOREPARAMS, "MODE", ":Not enough parameters");
+                break ;
+            }
+            _key = params[2];
+            _has_key = true;
+            message = "+k :Channel now is keyed. Key is: " + params[2];
+            break;
+        case 'l':
+            if (params.size() < 3) {
+                client->reply(ERR_NEEDMOREPARAMS, "MODE", ":Not enough parameters");
+                break ;
+            }
+            this->_user_limit = std::atoi(params[2].c_str());
+            this->_has_user_limit = true;
+            message = "+l :Channel now has user limit of " + params[2];
+            break;
+        default:
+            client->reply(ERR_UNKNOWNMODE, params[1], ":Unknown mode char");
+            break;
     }
-    return ;
+    std::string response = "MODE " + _name + " " + message;
+    broadcast(client, response);
 }
 
-bool Channel::set_mode(Message *message) {
-    std::string target;
-    std::string mode;
-    if(message->get_params().size() == 2) {
-        target = message->get_params()[0];
-        mode = message->get_params()[1];
-    }
+void     Channel::unset_mode(char mode, std::vector<std::string> params, Client *client) {
+    std::string message = "";
 
-    if(message->get_params().size() == 3) {
-        target = message->get_params()[2];
-        mode = message->get_params()[1];
-    }
-
-    Client *client = this->get_client_by_nickname(target, this->_clients);
-
-    if (mode[0] == '+') {
-        for (size_t i = 1; i < mode.length(); i++) {
-            switch (mode[i]) {
-                case 't':
-                    this->_topic_restriction = true;
-                    break;
-                case 'i':
-                    this->_invite_only = true;
-                    break;
-                case 'o':
-                    if (client != NULL) {
-                        this->_op_clients.push_back(client);
-                        break;
-                    } else
-                        return false;
-                case 'k':
-                    if(message->get_params().size() == 3 && client == NULL){
-                        this->_key = target;
-                        this->_has_key = true;
-                        break;
-                    }
-                    else
-                        return false;
-                case 'l':
-                    if(message->get_params().size() == 3 && client == NULL){
-                        this->_user_limit = std::atoi(target.c_str());
-                        this->_has_user_limit = true;
-                        break;
-                    }
-                    else
-                        return false;
-                default:
-                    return false;
+    switch (mode) {
+        case 't':
+            _topic_restriction = false;
+            message = "-t :Topic restriction is disabled";
+            break;
+        case 'i':
+            _invite_only = false;
+            message = "-i :Invite only is disabled";
+            break;
+        case 'o':
+            if (params.size() < 3) {
+                client->reply(ERR_NEEDMOREPARAMS, "MODE", ":Not enough parameters");
+                break ;
             }
-        }
-    } else if (mode[0] == '-') {
-        for (size_t i = 1; i < mode.length(); i++) {
-            switch (mode[i]) {
-                case 't':
-                    this->_topic_restriction = false;
-                    break;
-                case 'i':
-                    this->_invite_only = false;
-                    break;
-                case 'o':
-                    if (client != NULL) {
-                        std::vector<Client *>::iterator it = std::find(this->_op_clients.begin(), this->_op_clients.end(), client); 
-                        if (it != this->_op_clients.end()) {
-                            this->_op_clients.erase(it);
-                        }
-                        break;
-                    } else
-                        return false;
-                case 'k':
-                    this->_key = "";
-                    this->_has_key = false;
-                    break;
-                case 'l':
-                    this->_user_limit = 0;
-                    this->_has_user_limit = false;
-                    break;
-                default:
-                    return false;
+            if (client == NULL) {
+                client->reply(ERR_NOSUCHNICK, params[2], ":No such nick/channel");
+                break ;
             }
-        }
+            if (get_client_by_nickname(params[2], _clients) == NULL) {
+                client->reply(ERR_USERNOTINCHANNEL, params[2], ":User is not on that channel");
+                break ;
+            }
+            if (get_chanop_names().find(params[2]) == std::string::npos) {
+                client->reply(ERR_CHANOPRIVSNEEDED, params[2], ":User is not channel operator");
+                break ;
+            }
+            remove_chanop(get_client_by_nickname(params[2], _clients));
+            message = "-o :Removed " + params[2] + " as channel operator";
+            break;
+        case 'k':
+            _key = "";
+            _has_key = false;
+            message = "-k :Channel now is not keyed";
+            break;
+        case 'l':
+            _user_limit = 0;
+            _has_user_limit = false;
+            message = "-l :Channel now has no user limit";
+            break;
+        default:
+            client->reply(ERR_UNKNOWNMODE, params[1], ":Unknown mode char");
+            break;
     }
-    else
-        return false;
-    return true;
+    std::string response = "MODE " + _name + " " + message;
+    this->broadcast(client, response);
+    return ;
 }
 
 /******************************************************************************/
@@ -181,14 +226,6 @@ std::string             Channel::get_topic(void) const {
 
 std::string            Channel::get_key(void) const {
     return this->_key;
-}
-
-std::string             Channel::get_clients_names(void) const {
-    std::string names;
-    for (std::vector<Client *>::const_iterator it = this->_clients.begin(); it != this->_clients.end(); it++) {
-        names += (*it)->get_nickname() + " ";
-    }
-    return names;
 }
 
 std::string             Channel::get_chanop_names(void) const {
@@ -213,6 +250,33 @@ std::vector<Client *>   Channel::get_clients(void) const {
 
 int                    Channel::get_user_quantity(void) const {
     return this->_user_quantity;
+}
+
+std::string             Channel::get_modes(void) {
+    std::string modes = "+";
+    if (this->_topic_restriction)
+        modes += "t";
+    if (this->_invite_only)
+        modes += "i";
+    if (this->_key != "")
+        modes += "k";
+    if (this->_op_clients.size() > 0)
+        modes += "o";
+
+    // if modes is empty, return "No modes set"
+    if (modes == "+")
+        return ":No modes set";
+    return modes;
+}
+
+std::string Channel::get_clients_names(void)
+{
+    std::string names;
+    for (std::vector<Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++) {
+        names += is_chanop((*it)->get_nickname()) ? "@" : "";
+        names += (*it)->get_nickname() + " ";
+    }
+    return names;
 }
 
 int                   Channel::get_user_limit(void) const {
@@ -253,7 +317,3 @@ void                    Channel::set_topic(const std::string topic) {
     return ;
 }
 
-void                    Channel::set_key(const std::string key) {
-    this->_key = key;
-    return ;
-}

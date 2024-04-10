@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 14:25:21 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/12 21:18:03 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/06 18:13:05 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,8 +34,19 @@
 # include "../utils/utils.hpp"
 # include "../utils/IRCmacros.hpp"
 
+/*
+** Global variable for oper_password
+*/
+const std::string g_oper_password = "oper";
+
+/*
+** Forward declaration of Channel class
+*/
 class Channel;
 
+/*
+** Client class
+*/
 class Client
 {
 private:
@@ -45,7 +56,6 @@ private:
     int                     _socket;
     int                     _port;
     const std::string       _password;
-    const std::string       _oper_password;
     
     bool                    _disconnected;
     bool                    _authenticated;
@@ -58,7 +68,7 @@ private:
 
 public:
     // Constructors
-    Client(std::string server_hostname, int fd, int port, std::string password, std::string oper_password,const std::string &hostname);
+    Client(std::string server_hostname, int fd, int port, std::string password, const std::string &hostname);
     Client(const Client &other);
     // Destructor
     ~Client();
