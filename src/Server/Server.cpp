@@ -242,6 +242,19 @@ void Server::add_channel(Channel *channel) {
     return ;
 }
 
+// Global flag to indicate if Ctrl+C was pressed
+bool g_ctrlcPressed = false;
+
+// Signal handler function for Ctrl+C
+static void handleCtrlC(int signal)
+{
+    if (signal == SIGINT)
+    {
+        std::cout << "Ctrl+C pressed. Stopping server..." << std::endl;
+        g_ctrlcPressed = true;
+    }
+}
+
 void Server::start(void) {
     // Set the server as running
     _running = true;
@@ -259,8 +272,16 @@ void Server::start(void) {
     // Add STDIN to the vector
     addPollfd(_pollfds, STDIN_FILENO, POLLIN);    
     
+     // Set up signal handler for Ctrl+C
+    struct sigaction sa;
+    sa.sa_handler = handleCtrlC;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    if (sigaction(SIGINT, &sa, NULL) != 0)
+        throw std::runtime_error("Error setting up signal handler");
+
     // Poll for events
-    while (_running) {
+    while (_running && !g_ctrlcPressed) {
         int poll_count = poll(_pollfds.data(), _pollfds.size(), 0);
 
         // Check for errors in the poll function
