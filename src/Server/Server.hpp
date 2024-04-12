@@ -19,6 +19,7 @@
 # include "../Client/Client.hpp"
 # include "../Channel/Channel.hpp"
 # include "../Message/Message.hpp"
+#include <signal.h>
 
 class Command;
 
