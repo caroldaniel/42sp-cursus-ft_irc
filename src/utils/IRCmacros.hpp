@@ -91,5 +91,6 @@
 # define ERR_BADCHANNELKEY          "475" // <channel> :Cannot join channel (+k)
 # define ERR_CHANNELISFULL          "471" // <channel> :Cannot join channel (+l)
 # define ERR_NOTOPER                "481" // <nick> :is not an IRC operator
+# define ERR_ERRONEUSNICKNAME       "432" // <client> <nick> :Erroneus nickname 
 
 #endif
