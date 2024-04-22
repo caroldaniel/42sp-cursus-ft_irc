@@ -33,6 +33,13 @@ Server::Server(std::string port, std::string password) : _running(false), _socke
     _commands["INVITE"] = new Invite(this);
     _commands["WHO"] = new Who(this);
     _commands["CAP"] = new Cap(this);
+    _commands["BOT"] = new Bot(this);
+
+    Client *bot = new Client("marvin_hostname", 0, 0, "senha", "marvin_hostname");
+    bot->set_nickname("marvin_bot");
+    bot->set_realname("marvin_realname");
+    bot->set_username("marvin_username");
+    _clients.insert(std::make_pair(-1, bot));
     return ;
 }
 
@@ -149,7 +156,7 @@ void Server::on_client_connect(void) {
         throw std::runtime_error(std::string(gai_strerror(result)));
     }
     Client  *client = new Client(_hostname, client_socket, ntohs(client_address.sin_port), _password, hostname);  
-     
+
     _clients.insert(std::make_pair(client_socket, client));
     std::cout << client->get_hostname() << ":" << client->get_port() << " has connected" << std::endl;
     
