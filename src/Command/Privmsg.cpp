@@ -59,12 +59,23 @@ void    Privmsg::invoke(Client *client, Message *message) {
                     channel->broadcast(client, message->get_params()[1]);
                     if (command == "time")
                         channel->broadcast(bot, "The time is now: " + get_current_time());
+                    else if(command == "commands")
+                        channel->broadcast(bot, "Available commands: time, date, joke, quit");
                     else if (command == "date")
                         channel->broadcast(bot, "Today is: " + get_current_date());
                     else if (command == "joke")
                         channel->broadcast(bot, "Here is a joke: " + get_random_joke());
+                    else if (command == "quit")
+                    {
+                        if (!client->is_oper() && channel->get_chanop_names().find(client->get_nickname()) == std::string::npos) {
+                            channel->broadcast(bot, "You can't make me leave!");
+                            return ;
+                        }
+                        channel->broadcast(bot, "Goodbye, cruel world!");
+                        channel->set_bot(false);
+                    }
                     else
-                        channel->broadcast(bot, "I'm sorry, I don't understand that command.");
+                        channel->broadcast(bot, "I'm sorry, I don't understand that command. Try !commands for a list of available commands.");
                 }
             }
             else
@@ -80,4 +91,3 @@ void    Privmsg::invoke(Client *client, Message *message) {
     }
     return ;
 }
-
