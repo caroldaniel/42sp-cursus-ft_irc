@@ -93,6 +93,10 @@ public:
     Command &operator=(const Command &other);
 
     // Member functions
+    std::string     get_current_date(void);
+    std::string     get_current_time(void);
+    std::string     get_random_joke(void);
+
     virtual void    invoke(Client *client, Message *message) = 0;
 };
 
@@ -240,6 +244,15 @@ class Cap : public Command {
 public:
     Cap(Server *server);
     ~Cap(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
+class Bot : public Command {
+public:
+    Bot(Server *server);
+    ~Bot(void);
 
     // Member functions
     void    invoke(Client *client, Message *message);

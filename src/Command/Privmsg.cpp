@@ -50,8 +50,36 @@ void    Privmsg::invoke(Client *client, Message *message) {
                 client->reply(ERR_NOTONCHANNEL, client->get_nickname() + channel->get_name(), ":You're not on that channel");
                 return ;
             }
-            // Send message to channel
-            channel->broadcast(client, message->get_params()[1]);
+            if (message->get_params()[1].find("!") != std::string::npos && channel->get_has_bot() == true) {
+                std::vector<Client *>   clients = channel->get_clients();
+                Client *bot = channel->get_client_by_nickname("marvin_bot", clients);
+                if(bot != NULL)
+                {
+                    std::string command = message->get_params()[1].substr(1);
+                    channel->broadcast(client, message->get_params()[1]);
+                    if (command == "time")
+                        channel->broadcast(bot, "The time is now: " + get_current_time());
+                    else if(command == "commands")
+                        channel->broadcast(bot, "Available commands: time, date, joke, quit");
+                    else if (command == "date")
+                        channel->broadcast(bot, "Today is: " + get_current_date());
+                    else if (command == "joke")
+                        channel->broadcast(bot, "Here is a joke: " + get_random_joke());
+                    else if (command == "quit")
+                    {
+                        if (!client->is_oper() && channel->get_chanop_names().find(client->get_nickname()) == std::string::npos) {
+                            channel->broadcast(bot, "You can't make me leave!");
+                            return ;
+                        }
+                        channel->broadcast(bot, "Goodbye, cruel world!");
+                        channel->set_bot(false);
+                    }
+                    else
+                        channel->broadcast(bot, "I'm sorry, I don't understand that command. Try !commands for a list of available commands.");
+                }
+            }
+            else
+                channel->broadcast(client, message->get_params()[1]);
         } else {
             // Send message to user
             Client *target = _server->get_client_by_nickname(target_name);
@@ -63,4 +91,3 @@ void    Privmsg::invoke(Client *client, Message *message) {
     }
     return ;
 }
-

@@ -30,6 +30,7 @@ private:
     bool                    _topic_restriction;
     bool                    _invite_only;
     bool                    _has_key;
+    bool                    _has_bot;
     bool                    _has_user_limit;
 
 public:
@@ -62,6 +63,7 @@ public:
     int                     get_user_limit(void) const;
     bool                    get_topic_restriction(void) const;
     bool                    get_invite_only(void) const;
+    bool                    get_has_bot(void) const;
  
     bool                    get_has_key(void) const;
     bool                    get_has_user_limit(void) const;
@@ -69,8 +71,8 @@ public:
 
     // Setters
     void                    set_topic(const std::string topic);
-    void                    set_user_limit(const int user_limit);
     bool                    set_mode(Message *message);
+    void                    set_bot(bool has_bot);
 };
 
 #endif

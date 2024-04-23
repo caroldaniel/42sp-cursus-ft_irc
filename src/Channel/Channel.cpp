@@ -16,7 +16,7 @@
 /*                      Constructors and Destructor                           */
 /******************************************************************************/
 
-Channel::Channel(std::string name) : _name(name), _topic("No topic"), _key(""), _user_limit(0), _user_quantity(0),_topic_restriction(true), _invite_only(false), _has_key(false), _has_user_limit(false) {
+Channel::Channel(std::string name) : _name(name), _topic("No topic"), _key(""), _user_limit(0), _user_quantity(0),_topic_restriction(true), _invite_only(false), _has_key(false), _has_bot(false),_has_user_limit(false) {
     return ;
 }
 
@@ -299,6 +299,10 @@ bool                    Channel::get_has_user_limit(void) const {
     return this->_has_user_limit;
 }
 
+bool                    Channel::get_has_bot(void) const {
+    return this->_has_bot;
+}
+
 Client *Channel::get_client_by_nickname(std::string nickname, std::vector<Client *> &clients) {
     for (std::vector<Client*>::const_iterator it = clients.begin(); it != clients.end(); it++) {
         if ((*it)->get_nickname() == nickname) {
@@ -314,6 +318,11 @@ Client *Channel::get_client_by_nickname(std::string nickname, std::vector<Client
 
 void                    Channel::set_topic(const std::string topic) {
     this->_topic = topic;
+    return ;
+}
+
+void                Channel::set_bot(bool has_bot) {
+    this->_has_bot = has_bot;
     return ;
 }
 

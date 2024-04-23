@@ -43,6 +43,7 @@ SRC			= main.cpp \
 			  Invite.cpp \
 			  Who.cpp \
 			  Cap.cpp \
+			  Bot.cpp \
 
 VPATH		= $(SRC_DIR) \
 			$(SRC_DIR)utils \
