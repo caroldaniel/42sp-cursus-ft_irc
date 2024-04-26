@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 18:30:04 by dofranci          #+#    #+#             */
-/*   Updated: 2024/04/26 12:59:54 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/26 15:46:19 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,7 @@ void Invite::invoke(Client *client, Message *message) {
         }
 
         // Check if the client is in the channel
-        if(channel->get_clients_names().find(client->get_nickname()) == std::string::npos) {
+        if(channel->get_client_names().find(client->get_nickname()) == std::string::npos) {
             client->reply(ERR_NOTONCHANNEL, ":You're not on channel " + channel_name);
             return ;
         }
@@ -57,7 +57,7 @@ void Invite::invoke(Client *client, Message *message) {
             return ;
         }
 
-        Client *target = _server->get_client_by_nickname(message->get_params()[0]);
+        Client *target = _server->get_client(message->get_params()[0]);
         
         // Check if the target exists
         if (target == NULL) {

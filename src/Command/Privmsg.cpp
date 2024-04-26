@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 20:46:25 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/26 13:03:44 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/26 18:49:30 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,7 +43,7 @@ void    Privmsg::invoke(Client *client, Message *message) {
 
         // Try to get target by name
         Channel *channel = _server->get_channel(target_name);
-        Client  *target = _server->get_client_by_nickname(target_name);
+        Client  *target = _server->get_client(target_name);
         
         // Check if target is neither a channel nor a user
         if (!channel && !target) {
@@ -58,40 +58,18 @@ void    Privmsg::invoke(Client *client, Message *message) {
                 client->reply(ERR_NOTONCHANNEL, ":You're not on channel " + target_name);
                 return ;
             }
-            // if (message->get_params()[1].find("!") != std::string::npos && channel->has_bot() == true) {
-            //     std::vector<Client *>   clients = channel->get_clients();
-            //     Client *bot = channel->get_client_by_nickname("marvin_bot", clients);
-            //     if(bot != NULL)
-            //     {
-            //         std::string command = message->get_params()[1].substr(1);
-            //         channel->broadcast(client, message->get_params()[1]);
-            //         if (command == "time")
-            //             channel->broadcast(bot, "The time is now: " + get_current_time());
-            //         else if(command == "commands")
-            //             channel->broadcast(bot, "Available commands: time, date, joke, quit");
-            //         else if (command == "date")
-            //             channel->broadcast(bot, "Today is: " + get_current_date());
-            //         else if (command == "joke")
-            //             channel->broadcast(bot, "Here is a joke: " + get_random_joke());
-            //         else if (command == "quit")
-            //         {
-            //             if (!client->is_oper() && channel->get_chanop_names().find(client->get_nickname()) == std::string::npos) {
-            //                 channel->broadcast(bot, "You can't make me leave!");
-            //                 return ;
-            //             }
-            //             channel->broadcast(bot, "Goodbye, cruel world!");
-            //             channel->set_bot(false);
-            //         }
-            //         else
-            //             channel->broadcast(bot, "I'm sorry, I don't understand that command. Try !commands for a list of available commands.");
-            //     }
-            // }
             channel->broadcast(client, _name, "", message_text);
+            if (check_bot_command(message_text, channel)) 
+                bot_reply(client, channel, message_text);
         }
-        
         // If target is a user
-        else
-            target->broadcast(client, _name, target_name, message_text);
+        else {
+            // Check if target is marvin_bot
+            if (target->get_nickname() == "marvin_bot") 
+                bot_reply(client, NULL, message_text);
+            else
+                target->broadcast(client, _name, target_name, message_text);
+        }
     } else {
         client->reply(ERR_NOTREGISTERED, ":You have not registered");
     }

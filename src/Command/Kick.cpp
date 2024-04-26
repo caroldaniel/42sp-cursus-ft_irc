@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/20 23:06:58 by dofranci          #+#    #+#             */
-/*   Updated: 2024/04/26 13:14:48 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/26 15:46:19 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ void Kick::invoke(Client *client, Message *message) {
         }
 
         // Check if the target exists
-        Client *target = _server->get_client_by_nickname(message->get_params()[1]);
+        Client *target = _server->get_client(message->get_params()[1]);
         if (target == NULL) {
             client->reply(ERR_NOSUCHNICK, channel->get_name() + SPACE + ":No such nick/channel");
             return ;

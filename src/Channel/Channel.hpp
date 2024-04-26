@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 09:47:13 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/26 13:15:34 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/26 16:01:17 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,28 +65,27 @@ public:
     
     // Getters
     std::string             get_name(void) const;
-    std::string             get_modes(void);
     std::string             get_topic(void) const;
-    std::vector<Client *>   get_clients(void) const;
-    std::vector<Client *>   get_chanop_clients(void) const;
-    std::string             get_chanop_names(void) const;
-    std::string             get_clients_names(void);
-    std::string             get_client_info(Client *client, Channel *channel);
-    std::string             get_invited_names(void) const;
     std::string             get_key(void) const;
-    int                     get_user_quantity(void) const;
+    std::string             get_modes(void);
     int                     get_user_limit(void) const;
+    int                     get_user_quantity(void) const;
+    Client                  *get_client(std::string nickname, std::vector<Client *> &clients);
+    std::vector<Client *>   get_clients(void);
+    std::vector<Client *>   get_chanop_clients(void);
+    std::string             get_client_names(void);
+    std::string             get_chanop_names(void);
+    std::string             get_invited_names(void);
+    std::string             get_client_info(Client *client, Channel *channel);
     bool                    get_topic_restriction(void) const;
     bool                    get_invite_only(void) const;
-    Client                  *get_client_by_nickname(std::string nickname, std::vector<Client *> &clients);
-    bool                    has_client(Client *client);
     bool                    has_bot(void) const;
     bool                    has_key(void) const;
     bool                    has_user_limit(void) const;    
+    bool                    has_client(Client *client);
 
     // Setters
     void                    set_topic(const std::string topic);
-    bool                    set_mode(Message *message);
     void                    set_bot(bool has_bot);
 };
 

@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 10:06:24 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/26 08:57:37 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/26 18:26:45 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,6 +64,21 @@
 **  Invite Command
 */
 # define RPL_INVITING               "341" // <client> <nick> <channel>
+
+/*
+**  Whois Command
+*/
+# define RPL_WHOISUSER              "311" // <client> <nick> <username> <hostname> * :<realname>
+# define RPL_WHOISSERVER            "312" // <client> <nick> <server> :<server info>
+# define RPL_WHOISOPERATOR          "313" // <client> <nick> :is an IRC operator
+# define RPL_WHOISIDLE              "317" // <client> <nick> <seconds> <signon> :seconds idle, signon time
+# define RPL_ENDOFWHOIS             "318" // <client> <nick> :End of WHOIS list
+# define RPL_WHOISCHANNELS          "319" // <client> <nick> :<channels>
+
+/*
+** PING / PONG Commands
+*/
+# define RPL_PING                   "PONG" // :<msg>
 
 /******************************************************************************/
 /*                             ERROR REPLIES                                  */

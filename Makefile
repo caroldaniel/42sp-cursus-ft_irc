@@ -6,7 +6,7 @@
 #    By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/03/06 12:03:46 by cado-car          #+#    #+#              #
-#    Updated: 2024/04/25 21:26:50 by cado-car         ###   ########.fr        #
+#    Updated: 2024/04/26 19:59:55 by cado-car         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -42,9 +42,12 @@ SRC			= main.cpp \
 			  Kick.cpp \
 			  Invite.cpp \
 			  Who.cpp \
+			  Whois.cpp \
 			  Cap.cpp \
 			  Bot.cpp \
 			  Names.cpp \
+			  Ping.cpp \
+			  Notice.cpp \
 
 VPATH		= $(SRC_DIR) \
 			$(SRC_DIR)utils \
@@ -86,7 +89,7 @@ fclean:		clean
 			@printf "$(GR)Binary files cleaned successfully!$(RC)\n"
 
 leak:		$(NAME)
-			valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes ./$(NAME) 4242 senha
+			valgrind --leak-check=full --show-leak-kinds=all --track-origins=yes --track-fds=yes ./$(NAME) 4242 123
 
 .PHONY:		all re clean fclean
 

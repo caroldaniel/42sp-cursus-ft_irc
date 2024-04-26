@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 23:09:21 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/26 11:32:23 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/26 20:02:10 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ Nick::~Nick(void) {
 /******************************************************************************/
 
 void    Nick::invoke(Client *client, Message *message) {
-    
+
     // Check if message has enough parameters
     if (message->get_params().size() < 1) {
         client->reply(ERR_ERRONEUSNICKNAME, "<empty_nickname>");
@@ -45,7 +45,7 @@ void    Nick::invoke(Client *client, Message *message) {
     }
 
     // Check if nickname is already in use   
-    if (_server->get_client_by_nickname(nickname)) {
+    if (_server->get_client(nickname)) {
         client->reply(ERR_NICKNAMEINUSE, nickname);
         return;
     }

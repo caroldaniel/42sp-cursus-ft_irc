@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 15:00:57 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/25 22:30:28 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/26 15:46:19 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,7 @@ void Oper::invoke(Client *client, Message *message) {
         }
         
         std::string target_name = message->get_params()[0];
-        Client *target = _server->get_client_by_nickname(target_name);
+        Client *target = _server->get_client(target_name);
 
         if (target) {
             if (!target->is_registered()) {

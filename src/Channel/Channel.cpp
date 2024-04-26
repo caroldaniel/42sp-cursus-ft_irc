@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 09:47:16 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/26 13:16:30 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/26 16:53:52 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,15 +63,15 @@ void    Channel::join(Client *client) {
 
 void    Channel::part(Client *client, std::string message) {
     this->remove_chanop(client);
-    this->leave(client);
     this->broadcast(client, "PART", this->get_name(), message);
+    this->leave(client);
     return ;
 }
 
 void    Channel::quit(Client *client, std::string message) {
     this->remove_chanop(client);
-    this->leave(client);
     this->broadcast(client, "QUIT", this->get_name(), message);
+    this->leave(client);
     return ;
 }
 
@@ -94,7 +94,7 @@ void    Channel::topic(Client *client, std::vector<std::string> params) {
 }
 
 void    Channel::names(Client *client) {
-    client->reply(RPL_NAMREPLY, "= " + this->get_name() + " :" + this->get_clients_names());
+    client->reply(RPL_NAMREPLY, "= " + this->get_name() + " :" + this->get_client_names());
     client->reply(RPL_ENDOFNAMES, this->get_name() + " :End of /NAMES list");
     return ;
 }
@@ -113,8 +113,8 @@ void    Channel::kick(Client *client, Client *target, std::string reason) {
     }
     std::string message = target->get_nickname() + " :" + reason;
 
-    this->leave(target);
     this->broadcast(client, "KICK", this->get_name(), message);
+    this->leave(target);
     return ;
 }
 
@@ -188,7 +188,7 @@ void     Channel::set_mode(char mode, std::vector<std::string> params, Client *c
                 break ;
             }
             target_name = params[2];
-            target = get_client_by_nickname(target_name, _clients);
+            target = get_client(target_name, _clients);
             if (!this->has_client(target)) {
                 client->reply(ERR_USERNOTINCHANNEL, channel_name + SPACE + ":User is not on this channel");
                 break ;
@@ -262,7 +262,7 @@ void     Channel::unset_mode(char mode, std::vector<std::string> params, Client 
                 break ;
             }
             target_name = params[2];
-            target = get_client_by_nickname(target_name, _clients);
+            target = get_client(target_name, _clients);
             if (!this->has_client(target)) {
                 client->reply(ERR_USERNOTINCHANNEL, channel_name + SPACE + ":User is not on this channel");
                 break ;
@@ -319,41 +319,11 @@ std::string             Channel::get_name(void) const {
 }
 
 std::string             Channel::get_topic(void) const {
-    if (this->_topic.empty())
-        return this->_topic;
-    return ":" + this->_topic;
+    return this->_topic.empty() ? this->_topic : ":" + this->_topic;
 }
 
-std::string            Channel::get_key(void) const {
+std::string             Channel::get_key(void) const {
     return this->_key;
-}
-
-std::string             Channel::get_chanop_names(void) const {
-    std::string names;
-    for (std::vector<Client *>::const_iterator it = this->_op_clients.begin(); it != this->_op_clients.end(); it++) {
-        names += (*it)->get_nickname() + " ";
-    }
-    return names;
-}
-
-std::string             Channel::get_invited_names(void) const {
-    std::string names;
-    for (std::vector<Client *>::const_iterator it = this->_invited_clients.begin(); it != this->_invited_clients.end(); it++) {
-        names += (*it)->get_nickname() + " ";
-    }
-    return names;
-}
-
-std::vector<Client *>   Channel::get_clients(void) const {
-    return this->_clients;
-}
-
-std::vector<Client *>   Channel::get_chanop_clients(void) const {
-    return this->_op_clients;
-}
-
-int                     Channel::get_user_quantity(void) const {
-    return this->_user_quantity;
 }
 
 std::string             Channel::get_modes(void) {
@@ -392,11 +362,49 @@ std::string             Channel::get_modes(void) {
     return response;
 }
 
-std::string             Channel::get_clients_names(void)
-{
+int                     Channel::get_user_limit(void) const {
+    return this->_user_limit;
+}
+
+
+int                     Channel::get_user_quantity(void) const {
+    return this->_user_quantity;
+}
+
+Client *Channel::get_client(std::string nickname, std::vector<Client *> &clients) {
+    for (std::vector<Client*>::const_iterator it = clients.begin(); it != clients.end(); it++)
+        if ((*it)->get_nickname() == nickname) 
+            return *it;
+    return NULL;
+}
+
+std::vector<Client *>   Channel::get_clients(void) {
+    return this->_clients;
+}
+
+std::vector<Client *>   Channel::get_chanop_clients(void) {
+    return this->_op_clients;
+}
+
+std::string             Channel::get_client_names(void) {
     std::string names;
     for (std::vector<Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++) {
         names += is_chanop((*it)->get_nickname()) ? "@" : "";
+        names += (*it)->get_nickname() + " ";
+    }
+    return names;
+}
+
+std::string             Channel::get_chanop_names(void) {
+    std::string names;
+    for (std::vector<Client *>::const_iterator it = this->_op_clients.begin(); it != this->_op_clients.end(); it++) 
+        names += (*it)->get_nickname() + " ";
+    return names;
+}
+
+std::string             Channel::get_invited_names(void) {
+    std::string names;
+    for (std::vector<Client *>::const_iterator it = this->_invited_clients.begin(); it != this->_invited_clients.end(); it++) {
         names += (*it)->get_nickname() + " ";
     }
     return names;
@@ -416,34 +424,12 @@ std::string             Channel::get_client_info(Client *client, Channel *channe
     return info;
 }
 
-int                     Channel::get_user_limit(void) const {
-    return this->_user_limit;
-}
-
 bool                    Channel::get_topic_restriction(void) const {
     return this->_topic_restriction;
 }
 
 bool                    Channel::get_invite_only(void) const {
     return this->_invite_only;
-}
-
-Client *Channel::get_client_by_nickname(std::string nickname, std::vector<Client *> &clients) {
-    for (std::vector<Client*>::const_iterator it = clients.begin(); it != clients.end(); it++) {
-        if ((*it)->get_nickname() == nickname) {
-            return *it;
-        }
-    }
-    return NULL;
-}
-
-bool    Channel::has_client(Client *client) {
-    for (std::vector<Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++) {
-        if ((*it)->get_nickname() == client->get_nickname()) {
-            return true;
-        }
-    }
-    return false;
 }
 
 bool    Channel::has_bot(void) const {
@@ -458,11 +444,18 @@ bool    Channel::has_user_limit(void) const {
     return this->_has_user_limit;
 }
 
+bool    Channel::has_client(Client *client) {
+    for (std::vector<Client *>::iterator it = this->_clients.begin(); it != this->_clients.end(); it++)
+        if ((*it)->get_nickname() == client->get_nickname())
+            return true;
+    return false;
+}
+
 /******************************************************************************/
 /*                                 Setters                                    */
 /******************************************************************************/
 
-void                    Channel::set_topic(const std::string topic) {
+void                Channel::set_topic(const std::string topic) {
     this->_topic = topic;
     return ;
 }
@@ -471,4 +464,3 @@ void                Channel::set_bot(bool has_bot) {
     this->_has_bot = has_bot;
     return ;
 }
-
