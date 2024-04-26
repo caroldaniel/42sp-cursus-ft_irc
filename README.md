@@ -426,6 +426,10 @@ Then, on the Network tab, you must add a new server. On the Network tab, set up 
 
 After all this information is set, you can click **Connect**.
 
+<h2>
+Implementation
+</h2>
+
 ### Authentication and registration
 
 The first thing the client does when connecting to the server is to authenticate. `HexChat`, specifically, sends the following messages to the server:
@@ -477,7 +481,7 @@ Once the client is properly authenticated and registered, the server must respon
 
 `HexChat` does a few extra configurations steps to the GUI after this reply, so you better consider it as a mandatory step.
 
-### The important commands
+### General Commands 
 
 We are (obviously) not going to implement the entire IRC protocol. That would be a nightmare.
 
@@ -489,11 +493,19 @@ However, some commands are mandatory for our project's success. Others, just ver
 > 
 > Also, the `JOIN` command is a Client->Channel command, so the server must send the reply to all the channel's users.
 > 
-> We also chose to handle the `JOIN`command in order to create channels that do not exist. This is not necessarily the default behavior of an IRC server, but it's a good practice to allow the creation of channels on the fly and it makes our server more flexible. Choose to handle that as you please.
+> We also chose to handle the `JOIN` command in order to create channels that do not exist. That's only possible if the client who's joining the channel is also a server operator.
+>
+> This is not necessarily the default behavior of an IRC server, but it's a good practice to allow the creation of channels on the fly and it makes our server more flexible. Choose to handle that as you please.
 
 #### PRIVMSG
 
 > The `PRIVMSG` command is used to send a message to a user or a channel. The client sends the `PRIVMSG` command to the server, and the server responds with the appropriate replies. It's important to have in mind that `HexChat` uses the server's reply to the PRIVMSG command to perform actions in the Graphical User Interface as well, like opening a new tab for the user, or displaying the message in the channel appropriately.
+
+#### WHOIS
+
+> The `WHOIS` command is used to get information about a user. The client sends the `WHOIS` command to the server, and the server responds with the appropriate replies. 
+> 
+> Although not mandatory, the `WHOIS` command is a very welcome feature to implement, specially in `HexChat`, where there's a button directly in the private chat tab to get information about that user. 
 
 #### OPER
 
@@ -501,5 +513,79 @@ However, some commands are mandatory for our project's success. Others, just ver
 > 
 > It's important to note that Operators might have different privileges in different servers. This is completely up to you to decide how to handle this command in a fine-grained way in your own server.
 
+#### PING
 
+> The `PING` command is used to check if the client is still connected to the server. The client may send the `PING` command to the server, and the server must respond with the `PONG` command. In `HexChat`, it's a way to test latency and connection.
+> 
+> It was not mandatory for the project to handle the `PING` command, but it was simple enough, and proved very useful. We also took the oportunity to handle the PING command sent between clients, to check connectivity.
 
+#### LIST
+
+> The `LIST` command is not mandatory at all, but super cool and simple to implement to check `HexChat` GUI's full potential. The client sends the `LIST` command to the server, and the server must respond with the appropriate replies. The `LIST` command is used to list all the channels that are available on the server, to any client correctly registered.
+
+#### QUIT
+
+> The `QUIT` command is used to disconnect the client from the server. The client sends the `QUIT` command to the server, and the server must respond with the appropriate replies. In `HexChat`, it's a way to disconnect from the server.
+
+### Commands specific to channels
+
+#### MODE
+
+> The `MODE` command is used to see or change channel's modes. Out of every command implemented so far, we found these one to be the most challenging. We must deal with different modes, code modularity and the fact that `HexChat` must interpret the server's reply to the MODE command to perform actions in the GUI in a more fine-grained way.
+> 
+> We chose - and that is completely up to our own interpretation - that not only channel operators can change the channel's modes. Server operators can too - and that's the only channel specific command that they can perform. We did this so there's a way to add channel operators to channels that lost theirs, for some reason.
+> 
+> There are five modes we must handle: 
+> - `+o`/`-o` to give/remove operator status to a user;
+> - `+t`/`-t` to allow/prevent only operators to change the topic;
+> - `+i`/`-i` to set/unset the channel as invite-only;
+> - `+k`/`-k` to set/unset a password to the channel;
+> - `+l`/`-l` to set/unset the channel's user limit.
+> 
+> Obviously, there are a few other modes we did not ever dare to approach. These five were enough to make us sweat.
+
+#### KICK
+
+> The `KICK` command is used to kick a user from a channel. The client sends the `KICK` command to the server, and the server must respond with the appropriate replies. To kick someone from a channel, the client must be a channel operator.
+
+#### INVITE
+
+> The `INVITE` command is used to invite a user to a channel. The client sends the `INVITE` command to the server, and the server must respond with the appropriate replies. To invite someone to a channel, the client must be a channel operator.
+> 
+> That's actually a pretty cool feature to implement on `HexChat`, since the GUI takes care of abstracting the process of accepting the invitation and joining the channel by simply right-clicking the invitation message.
+
+#### TOPIC
+
+> The `TOPIC` command is used to set the channel's topic. The client sends the `TOPIC` command to the server, and the server must respond with the appropriate replies. To set the channel's topic, the client must be a channel operator.
+> 
+> Another cool feature to implement on `HexChat`, since we have a dedicated space for the channel's topic, and can change it at any time.
+
+#### WHO and NAMES
+
+> The `WHO` and `NAMES` commands are used to list the users that are in a channel. Although pretty similar in purpose, they have different outputs. The `WHO` command lists the users in a channel, along with a bunch of other information. The list is given in separate messages, one for each user. The `NAMES` command lists the users in a channel, along with their modes. The list is given in a single message. It's one way for `HexChat` to update the GUI with the users in the channel.
+
+<h2>
+Bonus
+</h2>
+
+For the first part of the Bonus part, the **file transfer** feature, you'll find that it's probably the easiest bonus to ever implement in your whole 42 common core experience. That is because, if you implemented the `PRIVMSG` command correctly, you already have the file transfer feature implemented. 
+
+No? Really? 
+
+Yes, really.
+
+Just try it. Send a file to a friend in a private chat. It's that simple.
+
+That's only possible because file transfers in `HexChat` do not go over to the server. They are handled directly by the clients. The server must be able to handle the commands, but it does not need to send replies regarding the FTP. 
+
+Easy peasy.
+
+Now, the second part of the Bonus, the **Bot** feature, is a little bit more challenging. How much really depends on how much time you want to spend on it. 
+
+Regular bots are usually implemented as separate clients, with their own sockets and connections to the server. They are usually used to perform automated tasks, like sending messages, or responding to commands. 
+
+Did we want to develop a whole client? Hell no.
+
+So, we chose to implement a bot that is part of the server. It is, most specifically, dealt in the Commands class, and implemented as a separate Client object. Nothing too fancy, but it does its job pretty well. 
+
+Now, if you want to grow on it, expand its capabilities, choose to connect to APIs and so on, maybe an in-server bot is not the best choice. But for the project's sake, it's more than enough.
