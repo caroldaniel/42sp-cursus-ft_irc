@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 12:03:38 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/07 18:53:45 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/25 22:23:29 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 /*                      Constructors and Destructor                           */
 /******************************************************************************/
 
-Server::Server(std::string port, std::string password) : _running(false), _socket(-1), _port(port), _password(password), _hostname("127.0.0.1") {
+Server::Server(std::string port, std::string password) : _running(false), _socket(-1), _port(port), _password(password), _hostname("127.0.0.1"), _oper_password(g_oper_password) {
     _commands["USER"] = new User(this);
     _commands["PASS"] = new Pass(this);
     _commands["NICK"] = new Nick(this);
@@ -34,12 +34,9 @@ Server::Server(std::string port, std::string password) : _running(false), _socke
     _commands["WHO"] = new Who(this);
     _commands["CAP"] = new Cap(this);
     _commands["BOT"] = new Bot(this);
+    _commands["NAMES"] = new Names(this);
 
-    Client *bot = new Client("marvin_hostname", 0, 0, "senha", "marvin_hostname");
-    bot->set_nickname("marvin_bot");
-    bot->set_realname("marvin_realname");
-    bot->set_username("marvin_username");
-    _clients.insert(std::make_pair(-1, bot));
+    add_bot();
     return ;
 }
 
@@ -107,6 +104,10 @@ Client  *Server::get_client_by_nickname(std::string nickname) {
 }
 
 Channel *Server::get_channel(std::string name) {
+    // if name doesn't end in ":hostname", append ":hostname"
+    if (name.find(":") == std::string::npos) {
+        name += ":" + _hostname;
+    }
     for (size_t i = 0; i < _channels.size(); i++) {
         if (_channels[i]->get_name() == name) {
             return _channels[i];
@@ -117,6 +118,10 @@ Channel *Server::get_channel(std::string name) {
 
 std::string Server::get_hostname(void) {
     return _hostname;
+}
+
+std::string Server::get_oper_password(void) {
+    return _oper_password;
 }
 
 std::vector<Channel *> Server::list_channels(void) {
@@ -167,7 +172,7 @@ void Server::on_client_disconnect(int client_fd) {
     // Remove the client from the map
     std::map<int, Client *>::iterator it = _clients.find(client_fd);
     if (it != _clients.end()) {
-        it->second->disconnect();
+        it->second->disconnect("Server disconnected due to inactivity");
         delete it->second;
         _clients.erase(it);
     }
@@ -182,18 +187,21 @@ void Server::on_client_disconnect(int client_fd) {
 }
 
 void Server::on_client_message(int client_fd, std::string message) {
-    client_fd = client_fd;
+    
+    if (get_client(client_fd)->is_disconnected())
+        return ;
+        
     // Parse line by line
     std::istringstream iss(message); 
     std::string line;
     Message *msg;
 
     while (std::getline(iss, line)) {
-        std::cout << "Received from " << _clients[client_fd]->get_nickname() << ": " << line << std::endl;
+        std::cout << "Received from " << _clients[client_fd]->get_nickname() << "@" << _clients[client_fd]->get_hostname() << ":" << _clients[client_fd]->get_port() << ": " << line << std::endl;
         try {
             msg = new Message(line);
             if (_commands.find(msg->get_command()) == _commands.end())
-                get_client(client_fd)->reply(ERR_UNKNOWNCOMMAND, msg->get_command(), ":Unknown command");
+                get_client(client_fd)->reply(ERR_UNKNOWNCOMMAND, ":Unknown command [" + msg->get_command() + "]");
             else
                 _commands[msg->get_command()]->invoke(get_client(client_fd), msg);
             delete msg;
@@ -241,6 +249,17 @@ void Server::create_socket(void) {
     if (listen(_socket, 5) == -1) {
         throw std::runtime_error("Error listening on server socket");
     }
+    return ;
+}
+
+void Server::add_bot(void) {
+    // Create a bot client
+    Client  *bot = new Client(_hostname, _socket, std::atoi(_port.c_str()), _password, "marvin_hostname");  
+    bot->set_nickname("marvin_bot");
+    bot->set_realname("Marvin the Bot");
+    bot->set_username("marvin_bot");
+    _clients.insert(std::make_pair(_socket, bot));
+    std::cout << bot->get_hostname() << ":" << bot->get_port() << " has connected" << std::endl;
     return ;
 }
 
@@ -327,7 +346,7 @@ void Server::start(void) {
 
             // If the client received a HUP event, disconnect it
             if ((_pollfds[i].revents & POLLHUP) == POLLHUP) {
-                _clients.find(_pollfds[i].fd)->second->disconnect();
+                _clients.find(_pollfds[i].fd)->second->disconnect("Server disconnected due to HUP event");
             }
             
             // If client has been disconnected, call on_client_disconnect

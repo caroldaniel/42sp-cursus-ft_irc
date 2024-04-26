@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 10:06:24 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/07 18:52:40 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/25 14:45:42 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,6 +27,7 @@
 # define RPL_YOURHOST               "002" // :Your host is <servername>, running version <ver>
 # define RPL_CREATED                "003" // :This server was created <date>
 # define RPL_MYINFO                 "004" // <servername> <version> <available user modes> <available channel modes>
+# define RPL_NEWNICK                "005" // :Your new nickname is <nick>
 
 /*
 **  Quit Command
@@ -78,6 +79,7 @@
 # define ERR_NONICKNAMEGIVEN        "431" // :No nickname given
 # define ERR_NICKNAMEINUSE          "433" // <nick> :Nickname is already in use
 # define ERR_NOTONCHANNEL           "442" // <client> <channel> :You're not on that channel
+# define ERR_NOTREGISTERED          "451" // :You have not registered
 # define ERR_NEEDMOREPARAMS         "461" // :Not enough parameters
 # define ERR_ALREADYREGISTRED       "462" // :You may not reregister
 # define ERR_PASSWDMISMATCH         "464" // :Password incorrect
@@ -92,5 +94,7 @@
 # define ERR_CHANNELISFULL          "471" // <channel> :Cannot join channel (+l)
 # define ERR_NOTOPER                "481" // <nick> :is not an IRC operator
 # define ERR_ERRONEUSNICKNAME       "432" // <client> <nick> :Erroneus nickname 
+# define ERR_ERRONEUSUSERNAME       "467" // <client> <username> :Erroneus username
+# define ERR_ERRONEUSREALNAME       "472" // <client> <realname> :Erroneus realname
 
 #endif

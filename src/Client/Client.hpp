@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 14:25:21 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/06 18:13:05 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/25 15:34:46 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ private:
     
     bool                    _disconnected;
     bool                    _authenticated;
+    bool                    _registered;
     bool                    _oper;
 
     std::string             _nickname;
@@ -76,11 +77,11 @@ public:
     Client &operator=(const Client &other);
 
     // Member functions
-    void        disconnect(void);
+    void        disconnect(std::string message);
     void        authenticate(std::string password);
     void        oper(std::string oper_password);
     void        unOper(void);
-    void        reply(std::string  code, std::string command, std::string message);
+    void        reply(std::string code, std::string message);
     void        broadcast(Client *sender, std::string target, std::string message);
 
     // Getters
@@ -92,16 +93,17 @@ public:
     std::string get_realname(void) const;
     std::string get_hostname(void) const;
 
-    bool        is_disconnected(void) const;
     bool        is_authenticated(void) const;
-    bool        is_oper(void) const;
     bool        is_registered(void) const;
+    bool        has_nickname(void) const;
+    bool        is_disconnected(void) const;
+    bool        is_oper(void) const;
 
     // Setters
     void        set_nickname(const std::string &nickname);
     void        set_username(const std::string &username);
     void        set_realname(const std::string &realname);
-    
+    void        set_registered(bool registered);    
 };
 
 

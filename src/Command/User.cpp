@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 22:36:12 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/12 14:43:54 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/25 15:40:32 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,20 +29,51 @@ User::~User(void) {
 /******************************************************************************/
 
 void    User::invoke(Client *client, Message *message) {
-    // Check if message has enough parameters
+
+    std::string username;
+    std::string realname;
+
+    // Check if client has a nickname
     if (message->get_params().size() < 4) {
-        client->reply(ERR_NEEDMOREPARAMS, _name, ":Not enough parameters");
+        client->disconnect("Server disconnected due to registration failure");
         return ;
     }
+
     // Check if the user is already registered
     if (client->is_registered()) {
-        client->reply(ERR_ALREADYREGISTRED, _name, ":You may not reregister");
+        client->reply(ERR_ALREADYREGISTRED, ":You may not reregister");
         return ;
     }
-    client->set_username(message->get_params()[0]);
-    client->set_realname(message->get_params()[3]);
-    if (client->is_authenticated() && client->is_registered()) {
-        client->reply(RPL_WELCOME, "", ":Welcome to the Internet Relay Network " + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname());
-    }    
+    
+    // Check if username is composed of valid characters (alpha-numeric, underscore, dash and dot only)
+    username = message->get_params()[0];
+    for (size_t i = 0; i < username.length(); i++) {
+        if(!std::isalnum(username[i]) && username[i] != '_' && username[i] != '-' && username[i] != '.') {
+            client->reply(ERR_ERRONEUSUSERNAME, ":Invalid username. Use only alpha-numeric characters, underscore, dash and dot.");
+            client->disconnect("Server disconnected due to registration failure");
+            return ;
+        }
+    }
+
+    // Check if realname is composed of valid characters (any printable character - including spaces - is allowed)
+    realname = message->get_params()[3];
+    for (size_t i = 0; i < realname.length(); i++) {
+        if(!std::isprint(realname[i])) {
+            client->reply(ERR_ERRONEUSREALNAME, ":Invalid realname. Use only printable characters.");
+            client->disconnect("Server disconnected due to registration failure");
+            return ;
+        }
+    }
+    
+    // Register the user
+    client->set_username(username);
+    client->set_realname(realname);
+    if (client->has_nickname())
+        client->set_registered(true);
+
+    if (client->is_registered())
+        client->reply(RPL_WELCOME, ":Welcome to the Internet Relay Network " + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname());
+    else 
+        client->reply(ERR_NOPRIVILEGES, ":You must choose a nickname before registering.");
     return ;
 }

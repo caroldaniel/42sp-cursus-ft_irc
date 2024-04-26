@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 15:00:57 by cado-car          #+#    #+#             */
-/*   Updated: 2024/03/12 19:14:31 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/25 22:46:20 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,50 +31,48 @@ Join::~Join(void) {
 void Join::invoke(Client *client, Message *message) {
     if (client->is_authenticated() && client->is_registered()) {
         if (message->get_params().size() < 1) {
-            client->reply(ERR_NEEDMOREPARAMS, _name, ":Not enough parameters");
+            client->reply(ERR_NEEDMOREPARAMS, ":Not enough parameters for JOIN command");
             return;
         }
         std::string channel_name = message->get_params()[0];
         if (channel_name[0] != '#') {
-            client->reply(ERR_NOSUCHCHANNEL, channel_name, ":No such channel");
+            client->reply(ERR_NOSUCHCHANNEL, ":No such channel [" + channel_name + "]");
             return;
         }
 
         Channel *channel = _server->get_channel(channel_name);
+        // Create channel if it does not exist. The client is the first user to join.
         if (channel == NULL) {
-            channel = new Channel(channel_name);
+            channel = new Channel(channel_name, _server->get_hostname());
             _server->add_channel(channel);
-        }
-        else
-        {
-            if (channel->get_invite_only() && channel->get_invited_names().find(client->get_nickname()) == std::string::npos) {
-                client->reply(ERR_INVITEONLYCHAN, channel->get_name(), ":Cannot join channel (+i)");
-                return;
-            }
-            if(channel->get_has_key() && message->get_params()[1] != channel->get_key()) {
-                client->reply(ERR_BADCHANNELKEY, channel->get_name(), ":Cannot join channel (+k)");
-                return;
-            }
-            if(channel->get_has_user_limit() && channel->get_user_quantity() >= channel->get_user_limit()) {
-                client->reply(ERR_CHANNELISFULL, channel->get_name(), ":Cannot join channel (+l)");
-                return;
-            }
-        }
-        channel->join(client);
-
-        // JOIN message
-        std::string join_message = ":" + client->get_nickname() + "!~" + client->get_username() + "@" + client->get_hostname() + " JOIN " + channel->get_name();
-        send(client->get_socket(), join_message.c_str(), join_message.size(), 0);
-        channel->broadcast(client, join_message);
-        // Channel Topic
-        if (channel->get_topic() == "No topic") {
-            client->reply(RPL_NOTOPIC, "", client->get_nickname() + " " + channel->get_name() + " :No topic is set");
+            channel->join(client);
+            channel->add_chanop(client);
         } else {
-            client->reply(RPL_TOPIC, "", channel->get_name() + " :" + channel->get_topic());
+            if (channel->get_invite_only() && channel->get_invited_names().find(client->get_nickname()) == std::string::npos) {
+                client->reply(ERR_INVITEONLYCHAN, channel->get_name() + SPACE + ":Cannot join channel (+i)");
+                return;
+            }
+            if(channel->has_key() && message->get_params()[1] != channel->get_key()) {
+                client->reply(ERR_BADCHANNELKEY, channel->get_name() + SPACE + ":Cannot join channel (+k)");
+                return;
+            }
+            if(channel->has_user_limit() && channel->get_user_quantity() >= channel->get_user_limit()) {
+                client->reply(ERR_CHANNELISFULL, channel->get_name() + SPACE + ":Cannot join channel (+l)");
+                return;
+            }
+            channel->join(client);
         }
-        // Names of the users that joined the channel
-        client->reply(RPL_NAMREPLY, "", "= " + channel->get_name() + " :" + channel->get_clients_names());
-        client->reply(RPL_ENDOFNAMES, "", channel->get_name() + " :End of /NAMES list");
+
+        // Channel Topic
+        std::vector<std::string> params;
+        params.push_back(channel->get_name());
+        channel->topic(client, params);
+        
+        // Channel Names
+        channel->update_list_names();
+    }
+    else {
+        client->reply(ERR_NOTREGISTERED, " :You have not registered");
     }
     return;
 }

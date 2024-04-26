@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 12:03:43 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/07 18:50:56 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/25 22:23:01 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,6 +37,7 @@ private:
     const std::string                   _port;
     const std::string                   _password;
     const std::string                   _hostname;
+    const std::string                   _oper_password;
 
     std::vector<pollfd>                 _pollfds;
     std::map<int, Client *>             _clients;
@@ -59,6 +60,7 @@ public:
     Client                  *get_client_by_nickname(std::string nickname);
     Channel                 *get_channel(std::string name);
     std::string             get_hostname(void);
+    std::string             get_oper_password(void);
     std::vector<Channel *>  list_channels(void);
     std::vector<Client *>   list_clients(void);
 
@@ -71,7 +73,8 @@ public:
     void    create_socket(void);
     void    start(void);
 
-    void    add_channel(Channel *channel);
+    void    add_bot(void);
+    void    add_channel(Channel *channel);    
 };
 
 /******************************************************************************/
@@ -253,6 +256,15 @@ class Bot : public Command {
 public:
     Bot(Server *server);
     ~Bot(void);
+
+    // Member functions
+    void    invoke(Client *client, Message *message);
+};
+
+class Names : public Command {
+public:
+    Names(Server *server);
+    ~Names(void);
 
     // Member functions
     void    invoke(Client *client, Message *message);

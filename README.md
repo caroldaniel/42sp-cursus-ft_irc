@@ -286,32 +286,123 @@ The IRC protocol is a text-based protocol. That means that all communication is 
 
 The IRC protocol is described in the RFC 1459 and the RFC 2810 to 2813. These documents describe the rules that we must follow in order to create an IRC server. We won't need (God forbid!) to implement the entire protocol. That would be a nightmare. But we must implement the most important parts of it.
 
-We also need to choose a client to use as a reference. For this project, we chose `HexChat`, which is an open-source IRC client that is available for Windows, macOS, and Linux. We are going to use it to connect to our server and to test the server's responses to the client's actions.
+We also need to choose a client to use as a reference. In our case, we chose to deal with the open-source IRC client `HexChat`. This client is available for Windows, macOS, and Linux, and it's a great reference for us to understand how the IRC protocol works.
 
-#### When a new client connects to the server
+It's important to have in mind that, although the RFC documents are an important baseline for stablishing comunication between the server and the client, each client and each server may have their own set of rules and abstractions that are not necessarily described in the RFC documents. 
 
-When a new client connects to the server, the client sends a series of messages to the server who must, in turn, respond appropriately, first authenticating the client, and then allowing the client to perform a series of actions.
+In our case, our server must ensure the best and most noise-free possible comunication with the client of our choice, but it does not garantee that it will be the case for any other client. During the evaluation process, we must use the client that we chose as a reference to test the server's responses to the client's actions.
 
-The messages that the client sends to the server are called **commands**. The server must respond to these commands with a series of **replies**. These replies are also messages, and they follow a specific format, for example:
+So, why `HexChat`? Because it's open-source, and because it's available for all major operating systems. This means that we can use it to test the server's responses to the client's actions, regardless of the operating system that we are using. It's also one of the most popular IRC clients, and it's widely used by the IRC community.
+
+To download `HexChat`, you can visit the official [HexChat website](https://hexchat.github.io/).
+
+### Messages sent and messages received
+
+When a new client connects to the server, the client sends a series of messages to the server who must, in turn, respond appropriately. 
+
+This is the main core of the project: understanding the messages that the client sends to the server, and responding to these messages with the appropriate replies. To do so, you must use as references: 
+- the RFC documents that describe the IRC protocol;
+- the IRC client that you chose as a reference.
+
+Like we said before, our program must be able to open a socket, bind it to a port, listen for incoming connections, and accept incoming connections. 
+
+Once the connection is established, the client sends a series of messages to the server. These messages follow a very specific format.
+
+So, for starters, let's break down the protocol syntax:
+
+- The messages that the client sends to the server are called **commands**;
+- The server must respond to these commands with the appropriate **replies**;
+
+All messages are sent and received through the sockets. The messages are sent as **strings**, and they follow a specific format. The messages are separated by a `\n` and a `\r` character.
+
+The syntax is as follows:
+
+```
+:prefix command [parameters] :trailing
+```
+
+- The `prefix` is an optional field that contains the address of the client that is sending the message. This field is usually set to the client's nickname, but it can be set to the client's username or hostname. The `prefix` is identified by the `:` character. For example: `:nick!user@host` or `:irc.example.com`;
+
+- The `command` is the command that the client is sending to the server. This field is mandatory, and it must be a valid command. For example: `NICK`, `USER`, `JOIN`, `PRIVMSG`, `QUIT`, `KICK`, `INVITE`, `TOPIC`, `MODE`, `WHOIS`, `WHO`, `LIST`, `NAMES`;
+
+- The `parameters` are the parameters of the command. This field can contain zero or more parameters, depending on the command. The parameters are separated by a space character. For example: `#channel`, `nickname`, `message`;
+
+- The `trailing` is the last parameter of the command, and it's optional. This is important: the trailing is part of the command itself, but it's main difference is that it can contain one or more words, all considered as a single parameter. The `:` character is used to identify the begginning of the `trailing` parameter, and everything that comes after it is considered part of the `trailing`. For example: `:Hello, world!`;
+
+During the parsing of the messages, the server must be able to identify the `prefix`, the `command`, and all the `parameters`, including the `trailing` one.
+
+### Using HexChat
+First things first, let's see how `Hexchat` works to log in to an IRC server.
+
+When you open HexChat, you are presented with a simnple window with some fields to be filled. The program is pretty straightforward. 
+
+First, you must fill information about Nick Name, Second and Third Choices (in case the nickname is already in use in the server), and User Name. 
+
+![HexChat](./img/001.png)
+
+Then, on the Network tab, you must add a new server. On the Network tab, set up you server's name, address and port. Due to the project's guidelines, we must also set a password in your server, so you must inform it straigh away in this tab. 
+
+![HexChat](./img/002.png)
+
+After all this information is set, you can click **Connect**.
+
+### Authentication and registration
+
+The first thing the client does when connecting to the server is to authenticate. `HexChat`, specifically, sends the following messages to the server:
+
+```
+CAP LS <version>
+PASS <password>
+NICK <nickname>
+USER <username> 0 * :<realname>
+```
+
+For each one of this commands, your server must respond with the appropriate reply.
+
+The `PASS` command is used to authenticate the client via password. The `NICK` and `USER` commands are used to register the client with the server. Only when the client is properly authenticated and registered, the server must respond with the `001` reply, welcoming the client to the server.
+
+#### CAP
+
+> The `CAP` command is used to negotiate capabilities with the server. The client sends the `CAP LS` command to list the available capabilities, and the server responds with the `CAP` command to list the capabilities that are enabled.
+> 
+> In our case, we chose to inform the client back that no particular capabilities are enabled. Do with this part as you please.
+
+#### PASS
+
+> The `PASS` command is used to authenticate the client via password. If you typed in the password in the `Hexchat` Network tab, the client will send this password to the server.
+> 
+> In our case, we chose to deal with authentication through a boolean flag. If the password is correct, the flag is set to true. Only if the client is also registered, the server responds with the `001` reply, welcoming the client to the server.
+> 
+> In case the password is incorrect, the server must respond with the `464` reply, informing the client that the password is incorrect. Other then that, we chose to disconnect the client from the server due to authentication failure. This part is up to you.
+
+#### NICK
+
+> The `NICK` command is used to set the client's nickname, and you may or may not consider it part of the registration process. The difference is that the client can change the nickname at any time by sending the `NICK` command again. 
+
+#### USER
+
+> The `USER` command is used to set the client's username and realname. The `USER` command is mandatory, and it must be sent after the `NICK` command. The `USER` command is used to register the client with the server.
+> 
+> In our case, we chose to only consider a client registered if the `username`, `realname`, and `nickname` are all set. However, due to particularities of the `HexChat` client, the NICK command might fail before the USER command is sent. This is up to you to decide how to handle.
+
+Once the client is properly authenticated and registered, the server must respond with the `001` reply, welcoming the client to the server. 
 
 ```
 :irc.example.com 001 nick :Welcome to the Internet Relay Network nick!user@host
 ```
 
-This is a reply to the `NICK` command. The server sends this message to the client in order to welcome the client to the server. The message contains the server's address, the reply code, the client's nickname, and a welcome message.
+`HexChat` does a few extra configurations steps to the GUI after this reply, so you better consider it as a mandatory step.
 
-The server must respond to all commands with the appropriate replies. The server must also handle the client's actions, such as joining a channel, sending a message, and performing a series of other actions.
+### The important commands
 
-#### The most important commands
+We are (obviously) not going to implement the entire IRC protocol. That would be a nightmare.
 
-The server must be able to handle the following commands:
+However, some commands are mandatory for our project's success. Others, just very welcome.
 
-- **NICK**: to set a nickname;
-- **USER**: to set a username;
+This is our list of commands implemented in our server.
+
 - **JOIN**: to join a channel;
 - **PRIVMSG**: to send a private message;
-- **PING**: to keep the connection alive;
-- **PONG**: to respond to the `PING` command;
 - **QUIT**: to disconnect from the server;
 
 The server must also be able to handle the following commands, regarding the channels:

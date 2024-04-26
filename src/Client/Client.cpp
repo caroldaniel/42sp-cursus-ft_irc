@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 14:25:23 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/06 18:13:37 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/25 21:57:25 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,8 +17,19 @@
 /******************************************************************************/
 
 Client::Client(std::string server_hostname, int fd, int port, std::string password, const std::string &hostname) 
-: _server_hostname(server_hostname), _socket(fd), _port(port), _password(password), _disconnected(false), _authenticated(false), _oper(false), _username(""), _realname(""), _hostname(hostname) {
-    std::cout << "Client created" << std::endl;
+    : _server_hostname(server_hostname), 
+    _socket(fd), 
+    _port(port), 
+    _password(password),
+    _disconnected(false), 
+    _authenticated(false),
+    _registered(false),
+    _oper(false), 
+    _nickname(""), 
+    _username(""), 
+    _realname(""), 
+    _hostname(hostname) {
+    std::cout << "Client on " << _hostname << ":" << _port << " created" << std::endl;
     return ;
 }
 
@@ -48,8 +59,11 @@ Client &Client::operator=(const Client &other) {
 /*                             Member functions                               */
 /******************************************************************************/
 
-void        Client::disconnect(void) {
+void        Client::disconnect(std::string message) {
+    
     if (_disconnected == false) {
+        reply(RPL_QUIT, message);
+        close(_socket);
         _disconnected = true;
     }
     return ;
@@ -67,11 +81,9 @@ void        Client::authenticate(std::string password) {
 
 void        Client::oper(std::string oper_password) {
     // compare the password
-    if (oper_password != g_oper_password) {
-        _oper = false;
-        return ;
+    if (oper_password == g_oper_password) {
+        _oper = true;
     }
-    _oper = true;
     return ;
 }
 
@@ -80,16 +92,20 @@ void        Client::unOper(void) {
     return ;
 }
 
-void        Client::reply(std::string code, std::string command, std::string message) {
+void        Client::reply(std::string code, std::string message) {
     // Concatenate the message and send it to the client
-    std::string reply;
+    std::string code_str;
+    std::string nickname_str;
+    std::string command_str;
+
+    code_str = code.empty() ? "" : code + SPACE;
+    nickname_str = _nickname.empty() ? "unregistered " : _nickname + SPACE;
     
-    if (command.empty()) {
-        reply = ":" + _server_hostname + SPACE + code + SPACE + _nickname + SPACE + message + CRLF;
-    } else {
-        reply = ":" + _server_hostname + SPACE + code + SPACE + _nickname + SPACE + command + SPACE + message + CRLF;
-    }
-    std::cout << "Sending reply: " << reply << std::endl;
+    std::string reply;
+    reply = ":" + _server_hostname + SPACE + code_str + nickname_str + message + CRLF;
+
+    std::cout << "Sending reply to " << _nickname << "@" << _hostname << ":" << _port << ": " << reply << std::endl;
+
     send(_socket, reply.c_str(), reply.length(), 0);
     return ;
 }
@@ -97,7 +113,7 @@ void        Client::reply(std::string code, std::string command, std::string mes
 void        Client::broadcast(Client *sender, std::string target, std::string message) {
     // Concatenate the message and send it to the client
     std::string reply = ":" + sender->get_nickname() + SPACE + "PRIVMSG" + SPACE + target + ":" + _server_hostname + SPACE + ":" + message + CRLF;
-    std::cout << "Broadcasting: " << reply << std::endl;
+    std::cout << "Broadcasting message to " << target << ": " << reply << std::endl;
     send(_socket, reply.c_str(), reply.length(), 0);
     return ;
 }
@@ -147,7 +163,11 @@ bool        Client::is_oper(void) const {
 }
 
 bool        Client::is_registered(void) const {
-    return !_nickname.empty() && !_username.empty() && !_realname.empty();
+    return _registered;
+}
+
+bool        Client::has_nickname(void) const {
+    return !_nickname.empty();
 }
 
 /******************************************************************************/
@@ -155,6 +175,7 @@ bool        Client::is_registered(void) const {
 /******************************************************************************/
 
 void        Client::set_nickname(const std::string &nickname) {
+    reply(RPL_NEWNICK, ":Nickname set to <" + nickname + ">");
     _nickname = nickname;
     return ;
 }
@@ -166,5 +187,10 @@ void        Client::set_username(const std::string &username) {
 
 void        Client::set_realname(const std::string &realname) {
     _realname = realname;
+    return ;
+}
+
+void        Client::set_registered(bool registered) {
+    _registered = registered;
     return ;
 }
