@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 09:47:13 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/25 21:20:08 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/26 13:15:34 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,36 +40,29 @@ public:
     ~Channel(void);
     Channel &operator=(const Channel &other);
 
-    // Commands
+    // Member Functions: Channel commands
     void                    join(Client *client);
     void                    part(Client *client, std::string message);
     void                    quit(Client *client, std::string message);
     void                    topic(Client *client, std::vector<std::string> params);
     void                    names(Client *client);
     void                    mode(Client *client, std::string message);
-    void                    kick(Client *client, std::string message);
+    void                    kick(Client *client, Client *target, std::string reason);
 
-    // Channel operators
+    // Member Functions: Operator management
     void                    add_chanop(Client *client);
     void                    remove_chanop(Client *client);
     bool                    is_chanop(std::string nickname);
 
-    // Communication
-    void                    send_to_all(std::string message);
-    void                    broadcast(Client *sender, std::string message);
-    
-    // Channel management
-    bool                    has_client(Client *client);
-    bool                    has_bot(void) const;
-    bool                    has_key(void) const;
-    bool                    has_user_limit(void) const;    
+    // Member Functions: Channel management
     void                    invite(Client *client);
     void                    leave(Client *client);
-    void                    kick(Client *client, Client *target, std::string reason);
     void                    set_mode(char mode, std::vector<std::string> params, Client *client, std::string channel_name);
     void                    unset_mode(char mode, std::vector<std::string> params, Client *client, std::string channel_name);
-    void                    update_list_names(void);
 
+    // Member Functions: Message handling
+    void                    broadcast(Client *sender, std::string command, std::string target, std::string message);
+    
     // Getters
     std::string             get_name(void) const;
     std::string             get_modes(void);
@@ -86,6 +79,10 @@ public:
     bool                    get_topic_restriction(void) const;
     bool                    get_invite_only(void) const;
     Client                  *get_client_by_nickname(std::string nickname, std::vector<Client *> &clients);
+    bool                    has_client(Client *client);
+    bool                    has_bot(void) const;
+    bool                    has_key(void) const;
+    bool                    has_user_limit(void) const;    
 
     // Setters
     void                    set_topic(const std::string topic);

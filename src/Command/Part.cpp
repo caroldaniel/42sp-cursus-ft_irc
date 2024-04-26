@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/15 02:15:14 by dofranci          #+#    #+#             */
-/*   Updated: 2024/04/25 22:07:31 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/26 12:56:02 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ void    Part::invoke(Client *client, Message *message) {
         // Check if channel exists
         Channel *channel = _server->get_channel(channel_name);
         if (channel == NULL) {
-            client->reply(ERR_NOSUCHCHANNEL, ":No such channel");
+            client->reply(ERR_NOSUCHCHANNEL, ":No channel " + channel_name);
             return ;
         }
         

@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/14 00:39:49 by dofranci          #+#    #+#             */
-/*   Updated: 2024/04/25 21:23:16 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/26 13:00:29 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,23 +41,23 @@ void Mode::invoke(Client *client, Message *message) {
         // Check if channel exists
         Channel *channel = _server->get_channel(channel_name);
         if (channel == NULL) {
-            client->reply(ERR_NOSUCHCHANNEL, ":No such channel [" + channel_name + "]");
+            client->reply(ERR_NOSUCHCHANNEL, ":No channel " + channel_name);
             return ;
         }
 
         // Check if client is on channel
         if (!channel->has_client(client)) {
-            client->reply(ERR_NOTONCHANNEL, ":You're not on channel " + channel->get_name());
+            client->reply(ERR_NOTONCHANNEL, ":You're not on channel " + channel_name);
             return ;
         }
 
-        // Check if command was invoked only with the channel name
+        // Check if command was invoked only for listing the channel's modes
         if (message->get_params().size() == 1) {           
             client->reply(RPL_CHANNELMODEIS, channel->get_name() + SPACE + channel->get_modes());
             return ;
         }
         
-        // Check if the client has the necessary permissions to change the mode
+        // Check if the client has the necessary permissions to change the mode (Oper or ChanOp)
         if (!client->is_oper() && !channel->is_chanop(client->get_nickname())) {
             // Send an error message to the client
             client->reply(ERR_NOPRIVILEGES, channel->get_name() + SPACE + ":Permission Denied");
@@ -82,9 +82,7 @@ void Mode::invoke(Client *client, Message *message) {
             channel->set_mode(flag, message->get_params(), client, channel->get_name());
         else
             client->reply(ERR_UNKNOWNMODE, channel->get_name() + SPACE + ":Unknown mode char");
-        channel->update_list_names();
-    }
-    else {
+    } else {
         client->reply(ERR_NOTREGISTERED, ":You have not registered");
     }
     return ;

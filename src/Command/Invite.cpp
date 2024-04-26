@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 18:30:04 by dofranci          #+#    #+#             */
-/*   Updated: 2024/04/25 22:43:01 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/26 12:59:54 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,19 +41,19 @@ void Invite::invoke(Client *client, Message *message) {
         // Check if channel exists
         Channel *channel = _server->get_channel(channel_name);
         if (channel == NULL) {
-            client->reply(ERR_NOSUCHCHANNEL, ":No such channel [" + channel_name + "]");
+            client->reply(ERR_NOSUCHCHANNEL, ":No channel " + channel_name);
             return ;
         }
 
         // Check if the client is in the channel
         if(channel->get_clients_names().find(client->get_nickname()) == std::string::npos) {
-            client->reply(ERR_NOTONCHANNEL, ":You're not on that channel");
+            client->reply(ERR_NOTONCHANNEL, ":You're not on channel " + channel_name);
             return ;
         }
 
         // Check if the client has the necessary permissions to invite
         if (!client->is_oper() && !channel->is_chanop(client->get_nickname())) {
-            client->reply(ERR_CHANOPRIVSNEEDED, ":You're not channel operator");
+            client->reply(ERR_CHANOPRIVSNEEDED, ":You're not channel " + channel_name + " operator");
             return ;
         }
 
@@ -67,17 +67,14 @@ void Invite::invoke(Client *client, Message *message) {
         
         // Check if the target is in the channel
         if(channel->has_client(target)) {
-           client->reply(ERR_USERONCHANNEL, ":" + target->get_nickname() + " is already on channel " + channel->get_name());
+           client->reply(ERR_USERONCHANNEL, ":" + target->get_nickname() + " is already on channel " + channel_name);
         }
 
         // Send an invite message to the target
         channel->invite(target);
         client->reply(RPL_INVITING, target->get_nickname() + " " +  channel->get_name());
-        std::string invite_reply = ":" + client->get_nickname() + " INVITE " + target->get_nickname() + " " + channel->get_name() + CRLF;
-        std::cout << "Sending reply to : " << invite_reply << std::endl;
-        send(target->get_socket(), invite_reply.c_str(), invite_reply.length(), 0);
-    }
-    else {
+        target->broadcast(client, "INVITE", target->get_nickname(), channel->get_name());
+    } else {
         client->reply(ERR_NOTREGISTERED, ":You have not registered");
     }
     return ;

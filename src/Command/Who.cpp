@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/07 17:47:54 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/25 20:14:50 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/26 13:05:00 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ void    Who::invoke(Client *client, Message *message) {
         std::string channel_name = message->get_params()[0];
         Channel *channel = _server->get_channel(channel_name);
         if (channel == NULL) {
-            client->reply(ERR_NOSUCHCHANNEL, ":No such channel [" + channel_name + "]");
+            client->reply(ERR_NOSUCHCHANNEL, ":No channel " + channel_name);
             return ;
         }
 
@@ -73,8 +73,7 @@ void    Who::invoke(Client *client, Message *message) {
             client->reply(RPL_WHOREPLY, channel->get_name() + SPACE + info);
         }
         client->reply(RPL_ENDOFWHO, channel->get_name() + SPACE + ":End of /WHO list");
-    }
-    else {
+    } else {
         client->reply(ERR_NOTREGISTERED, ":You have not registered");
     }
     return ;

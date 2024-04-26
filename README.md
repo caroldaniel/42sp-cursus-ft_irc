@@ -315,7 +315,7 @@ So, for starters, let's break down the protocol syntax:
 
 All messages are sent and received through the sockets. The messages are sent as **strings**, and they follow a specific format. The messages are separated by a `\n` and a `\r` character.
 
-The syntax is as follows:
+The syntax for all **commands** is as follows:
 
 ```
 :prefix command [parameters] :trailing
@@ -331,6 +331,86 @@ The syntax is as follows:
 
 During the parsing of the messages, the server must be able to identify the `prefix`, the `command`, and all the `parameters`, including the `trailing` one.
 
+In the other end, the server must respond to the client's commands in a way that the client will understand. Clients have a set expectations regarding replies formatting, coding and timing. Understand that was one of the most challenging parts of the project, but it was also one of the most rewarding.
+
+The syntax for **replies** can differ depending on the type of command and context. For these project, we were able to identify the following: 
+
+#### Server->Client replies
+
+When the server needs to send a reply directly to a single client, usually involving a command that is **not** in the scope of channels or private users. We send this message on behalf of the server, directly to the client who requested the action.
+
+For example:
+
+```
+# Reply to a /USER command
+:irc.example.com 001 nick :Welcome to the Internet Relay Network nick!user@host
+
+# Reply to a /LIST command
+:irc.example.com 322 nick :#channel 1 :Welcome to the channel
+
+# Reply to a /OPER command
+:irc.example.com 381 nick :You are now an IRC operator
+```
+
+- The `prefix` is the server's address: `:irc.example.com`;
+
+- The `code` is a three-digit number that identifies the type of reply, either to identify sucess or failure in processing the request. The `001`, for example, is the welcome message. For each code, the client can choose to perform a different action. Programatically, there's no library macro with the codes, so you must define them yourself using the RFC documents;
+
+- The `nickname` is the client's nickname: `nick`;
+
+- The `trailing` is the message that the server is sending to the client: `Welcome to the Internet Relay Network nick!user@host`. For each type of response, the message can be slightly different. Read the documentation carefully.
+
+#### Client->Channel replies
+
+When the a user attempts to perform an action that involves a channel, the server must send a reply to the channel's users. `HexChat` uses these replies to perform underlying actions to the Client's Interface. We must respect this format rigorously.
+
+For example:
+
+```
+# Reply to a /JOIN command
+:nick!user@host JOIN #channel
+
+# Reply to a /PRIVMSG command
+:nick!user@host PRIVMSG #channel :Hello, world!
+
+# Reply to a /MODE command
+:nick!user@host MODE #channel +o otheruser
+```
+
+- The `prefix` is the client's address, formatted as `:nick!user@host`. It shows who's the user performing the action;
+
+- The `command` is the command that the client is sending to the server, all in uppercase: `JOIN`, `PRIVMSG`, `MODE`, etc.;
+
+- The `channel` is the channel that the client is sending the message to: `#channel` or `#channel:hostname`. Pay attention to the format the Client is expecting. In our case, `HexChat` expects the hostname to be included in the channel name, otherwise it does not recognize the commands in the GUI;
+
+- The `parameters` may be the flag of the command, or the nickname of the user that is being kicked, or even a trailing message. It depends on the command;
+
+#### Client->Client replies
+
+When a user sends a private message to another user, the server must send a reply to the recipient. This reply is similar to the channel replies, but it's sent directly to the recipient.
+
+For example:
+
+```
+# Reply to a /PRIVMSG command
+:nick!user@host PRIVMSG otheruser :Hello, world!
+
+# Invite a user to a channel
+:nick!user@host INVITE otheruser #channel
+```
+
+- The `prefix` is the client's address, formatted as `:nick!user@host`. It shows who's the user sending the message;
+
+- The `command` is the command that the client is sending to the server, all in uppercase: `PRIVMSG`, `INVITE`, etc.;
+
+- The `recipient` is the nickname of the user that is receiving the message: `otheruser`;
+
+- The `parameters` depend on the command. It may be the message that the user is sending, like a `trailing` string, or the channel that the user is inviting the recipient to;
+
+It's important to notice that in some very rare cases of **Client->Client** communication, replies do not go through the server for processing. Some features, like file transfers, are handled directly by the clients. In these cases, the server must be able to handle the commands, but it does not need to send replies to the clients.
+
+However, in most cases, the server will have to handle the commands passed by the clients and send the appropriate replies. In the `INVITE` command, for example, the server receives a very similar message: `INVITE otheruser #channel`. The server must then handle the appropriate logic of invitation, and respond to the client with *almost* the same message: `:nick!user@host INVITE otheruser #channel`.
+
 ### Using HexChat
 First things first, let's see how `Hexchat` works to log in to an IRC server.
 
@@ -340,7 +420,7 @@ First, you must fill information about Nick Name, Second and Third Choices (in c
 
 ![HexChat](./img/001.png)
 
-Then, on the Network tab, you must add a new server. On the Network tab, set up you server's name, address and port. Due to the project's guidelines, we must also set a password in your server, so you must inform it straigh away in this tab. 
+Then, on the Network tab, you must add a new server. On the Network tab, set up you server's name, address and port. Due to the project's guidelines, we must also set a password in your server, so you must inform it in the Password field.
 
 ![HexChat](./img/002.png)
 
@@ -359,12 +439,16 @@ USER <username> 0 * :<realname>
 
 For each one of this commands, your server must respond with the appropriate reply.
 
+Even though the `CAP`command (as many others) is not mandatory, we chose to implement all commands the server receives spontaneously from `HexChat`. This is a good practice, as it allows the server to be more flexible and to handle more commands in the future.
+
 The `PASS` command is used to authenticate the client via password. The `NICK` and `USER` commands are used to register the client with the server. Only when the client is properly authenticated and registered, the server must respond with the `001` reply, welcoming the client to the server.
 
 #### CAP
 
 > The `CAP` command is used to negotiate capabilities with the server. The client sends the `CAP LS` command to list the available capabilities, and the server responds with the `CAP` command to list the capabilities that are enabled.
-> 
+>
+> An appropriate reply to the `CAP LS` command involves listing the capabilities that are available. In our case, we chose to list no particular capabilities. This part is up to you.
+>
 > In our case, we chose to inform the client back that no particular capabilities are enabled. Do with this part as you please.
 
 #### PASS
@@ -377,11 +461,11 @@ The `PASS` command is used to authenticate the client via password. The `NICK` a
 
 #### NICK
 
-> The `NICK` command is used to set the client's nickname, and you may or may not consider it part of the registration process. The difference is that the client can change the nickname at any time by sending the `NICK` command again. 
+> The `NICK` command is used to set the client's nickname, and you may or may not consider it part of the registration process. The difference is that the client can change the nickname at any time by sending the `NICK` command again. However, there cannot exist a client with no nick, neither a client with the same nick as another client.
 
 #### USER
 
-> The `USER` command is used to set the client's username and realname. The `USER` command is mandatory, and it must be sent after the `NICK` command. The `USER` command is used to register the client with the server.
+> The `USER` command is used to set the client's username and realname. The `USER` command is mandatory, and it is good practice to be sent after the `NICK` command, although not necessarily mandatory. The `USER` command is used to register the client with the server.
 > 
 > In our case, we chose to only consider a client registered if the `username`, `realname`, and `nickname` are all set. However, due to particularities of the `HexChat` client, the NICK command might fail before the USER command is sent. This is up to you to decide how to handle.
 
@@ -399,46 +483,23 @@ We are (obviously) not going to implement the entire IRC protocol. That would be
 
 However, some commands are mandatory for our project's success. Others, just very welcome.
 
-This is our list of commands implemented in our server.
+#### JOIN
 
-- **JOIN**: to join a channel;
-- **PRIVMSG**: to send a private message;
-- **QUIT**: to disconnect from the server;
+> The `JOIN` command is used to join a channel. The client sends the `JOIN` command to the server, and the server responds with the appropriate replies. It's important to have in mind that `HexChat` uses the server's reply to the join command to perform actions in the Graphical User Interface.
+> 
+> Also, the `JOIN` command is a Client->Channel command, so the server must send the reply to all the channel's users.
+> 
+> We also chose to handle the `JOIN`command in order to create channels that do not exist. This is not necessarily the default behavior of an IRC server, but it's a good practice to allow the creation of channels on the fly and it makes our server more flexible. Choose to handle that as you please.
 
-The server must also be able to handle the following commands, regarding the channels:
+#### PRIVMSG
 
-- **KICK**: to kick a user from a channel;
-- **INVITE**: to invite a user to a channel;
-- **TOPIC**: to set the topic of a channel;
-- **MODE**: to set the mode of a channel. For this command, the server must be able to handle the `i`, `t`, `k`, `o`, and `l` parameters;
+> The `PRIVMSG` command is used to send a message to a user or a channel. The client sends the `PRIVMSG` command to the server, and the server responds with the appropriate replies. It's important to have in mind that `HexChat` uses the server's reply to the PRIVMSG command to perform actions in the Graphical User Interface as well, like opening a new tab for the user, or displaying the message in the channel appropriately.
 
-The server must also be able to handle the following commands, regarding the users:
+#### OPER
 
-- **WHOIS**: to get information about a user;
-- **WHO**: to get a list of users;
-- **LIST**: to get a list of channels;
-- **NAMES**: to get a list of users in a channel;
+> The `OPER` command is used to authenticate the client as an IRC operator. That means that the client has special privileges, and can perform actions that regular users cannot. In our case, it means that only Operators can create new channels with the /join command, edit channel's modes without necessarily being a channel operator themselves and include other users to the server's operator list.
+> 
+> It's important to note that Operators might have different privileges in different servers. This is completely up to you to decide how to handle this command in a fine-grained way in your own server.
 
-#### Authentication
 
-The server must be able to authenticate the client. The server is secured by a password, and the client must send the password to the server before being able to perform any action.
 
-To authenticate the client, the server must be able to handle the `PASS` command. The client sends the password to the server, and the server responds with the appropriate reply.
-
-If the client is correctly authenticated, the server must respond with the `001` reply, welcoming the client to the server.
-
-```
-:irc.example.com 001 nick :Welcome to the Internet Relay Network nick!user@host
-```
-
-If not, you can choose how to handle: if asking for the password again, or if disconnecting the client from the server altogether. For example:
-
-```
-:irc.example.com 464 :Password incorrect
-```
-
-### After authentication
-
-After the client is properly authenticated, with the user and nickname set, the server must be able to handle all other commands. By default, a IRC client demands the user to either join a channel or to send a private message to another user. 
-
-Other commands are also available, like `LIST`, `NAMES`, `WHO`, and `WHOIS`. The server must be able to handle these commands, and respond with the appropriate replies.

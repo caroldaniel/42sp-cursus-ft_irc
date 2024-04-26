@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/20 23:06:58 by dofranci          #+#    #+#             */
-/*   Updated: 2024/04/25 22:06:56 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/26 13:14:48 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,13 +41,13 @@ void Kick::invoke(Client *client, Message *message) {
         // Check if channel exists
         Channel *channel = _server->get_channel(channel_name);
         if (channel == NULL) {
-            client->reply(ERR_NOSUCHCHANNEL, ":No such channel");
+            client->reply(ERR_NOSUCHCHANNEL, ":No channel " + channel_name);
             return ;
         }
 
         // Check if the client is in the channel
         if(!channel->has_client(client)) {
-            client->reply(ERR_NOTONCHANNEL, ":You're not on that channel");
+            client->reply(ERR_NOTONCHANNEL, ":You're not on channel " + channel_name);
             return ;
         }
 
@@ -71,10 +71,9 @@ void Kick::invoke(Client *client, Message *message) {
         }
 
         // Kick the target from the channel
-        channel->kick(client, target, message->get_params().size() > 2 ? message->get_params()[2] : "Kicked");
-        channel->update_list_names();
-    }
-    else {
+        std::string reason = message->get_params().size() > 2 ? message->get_params()[2] : "Kicked";
+        channel->kick(client, target, reason);
+    } else {
         client->reply(ERR_NOTREGISTERED, ":You have not registered");
     }
 }

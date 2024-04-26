@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 10:06:24 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/25 14:45:42 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/26 08:57:37 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,10 +54,11 @@
 /*
 **  Mode Command
 */
-# define RPL_CHANNELMODEIS          "324" // <channel> <mode> <mode params>
 # define RPL_UMODEIS                "221" // <client> <mode>
-# define RPL_WHOREPLY               "352" // <client> <username> <hostname> <servername> <nick> <H|G>[*][@|+] :<hopcount> <realname>
 # define RPL_ENDOFWHO               "315" // <mask> :End of WHO list
+# define RPL_CHANNELMODEIS          "324" // <channel> <mode> <mode params>
+# define RPL_WHOREPLY               "352" // <client> <username> <hostname> <servername> <nick> <H|G>[*][@|+] :<hopcount> <realname>
+# define RPL_ENDOFMODES             "368" // <client> :End of channel mode list
 
 /*
 **  Invite Command
@@ -79,6 +80,7 @@
 # define ERR_NONICKNAMEGIVEN        "431" // :No nickname given
 # define ERR_NICKNAMEINUSE          "433" // <nick> :Nickname is already in use
 # define ERR_NOTONCHANNEL           "442" // <client> <channel> :You're not on that channel
+# define ERR_ALREADYONCHANNEL       "443" // <channel> :You're already on that channel
 # define ERR_NOTREGISTERED          "451" // :You have not registered
 # define ERR_NEEDMOREPARAMS         "461" // :Not enough parameters
 # define ERR_ALREADYREGISTRED       "462" // :You may not reregister
@@ -96,5 +98,6 @@
 # define ERR_ERRONEUSNICKNAME       "432" // <client> <nick> :Erroneus nickname 
 # define ERR_ERRONEUSUSERNAME       "467" // <client> <username> :Erroneus username
 # define ERR_ERRONEUSREALNAME       "472" // <client> <realname> :Erroneus realname
+# define ERR_ALREADYOPER            "485" // <client> :You're already an IRC operator
 
 #endif

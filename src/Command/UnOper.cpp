@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/20 22:36:11 by dofranci          #+#    #+#             */
-/*   Updated: 2024/04/25 22:04:46 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/26 13:05:56 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,8 +55,7 @@ void UnOper::invoke(Client *client, Message *message) {
             target->reply(ERR_NOTOPER, ":You are no longer an IRC operator");
         } else
             client->reply(ERR_NOSUCHNICK, ":No such nick/channel");
-    }
-    else {
+    } else {
         client->reply(ERR_NOTREGISTERED, ":You have not registered");
     }
 }

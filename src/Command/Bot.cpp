@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/04/22 15:31:11 by dofranci          #+#    #+#             */
-/*   Updated: 2024/04/25 14:49:13 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/26 12:17:57 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,8 +65,6 @@ void Bot::invoke(Client *client, Message *message) {
             return;
         }
         channel->join(bot);
-        std::string join_message = ":" + bot->get_nickname() + "!~" + bot->get_username() + "@" + bot->get_hostname() + " JOIN " + channel->get_name();
-        channel->broadcast(bot, join_message);
         channel->set_bot(true);
     }
     else {

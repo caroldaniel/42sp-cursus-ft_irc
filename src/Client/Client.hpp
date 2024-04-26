@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 14:25:21 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/25 15:34:46 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/26 12:14:54 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,7 +37,8 @@
 /*
 ** Global variable for oper_password
 */
-const std::string g_oper_password = "oper";
+const bool          g_logs = true;
+const std::string   g_oper_password = "oper";
 
 /*
 ** Forward declaration of Channel class
@@ -76,13 +77,16 @@ public:
     // Assignment operator
     Client &operator=(const Client &other);
 
-    // Member functions
+    // Member functions: Client management
     void        disconnect(std::string message);
     void        authenticate(std::string password);
+    void        register_client(void);
     void        oper(std::string oper_password);
     void        unOper(void);
+
+    // Member functions: Message handling
     void        reply(std::string code, std::string message);
-    void        broadcast(Client *sender, std::string target, std::string message);
+    void        broadcast(Client *sender, std::string command, std::string target, std::string message);
 
     // Getters
     std::string get_server_hostname(void) const;
@@ -92,18 +96,16 @@ public:
     std::string get_username(void) const;
     std::string get_realname(void) const;
     std::string get_hostname(void) const;
-
+    bool        is_disconnected(void) const;
     bool        is_authenticated(void) const;
     bool        is_registered(void) const;
-    bool        has_nickname(void) const;
-    bool        is_disconnected(void) const;
     bool        is_oper(void) const;
+    bool        has_nickname(void) const;
 
     // Setters
     void        set_nickname(const std::string &nickname);
     void        set_username(const std::string &username);
     void        set_realname(const std::string &realname);
-    void        set_registered(bool registered);    
 };
 
 

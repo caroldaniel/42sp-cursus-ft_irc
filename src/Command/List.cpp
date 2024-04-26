@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 10:16:12 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/25 22:15:27 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/26 13:02:39 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,8 +45,7 @@ void    List::invoke(Client *client, Message *message) {
             }
         }
         client->reply(RPL_LISTEND, ":End of /LIST");
-    }
-    else {
+    } else {
         client->reply(ERR_NOTREGISTERED, ":You have not registered");
     }
     return ;

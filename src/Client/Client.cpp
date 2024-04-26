@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 14:25:23 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/25 21:57:25 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/26 12:41:00 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,6 +29,7 @@ Client::Client(std::string server_hostname, int fd, int port, std::string passwo
     _username(""), 
     _realname(""), 
     _hostname(hostname) {
+
     std::cout << "Client on " << _hostname << ":" << _port << " created" << std::endl;
     return ;
 }
@@ -56,12 +57,11 @@ Client &Client::operator=(const Client &other) {
 }
 
 /******************************************************************************/
-/*                             Member functions                               */
+/*                   Member functions: Client management                      */
 /******************************************************************************/
 
 void        Client::disconnect(std::string message) {
-    
-    if (_disconnected == false) {
+    if (!_disconnected) {
         reply(RPL_QUIT, message);
         close(_socket);
         _disconnected = true;
@@ -70,20 +70,24 @@ void        Client::disconnect(std::string message) {
 }
 
 void        Client::authenticate(std::string password) {
-    // compare the password
-    if (password != _password) {
-        _authenticated = false;
-        return ;
+    if (password == _password)
+        _authenticated = true;
+    return ;
+}
+
+void        Client::register_client(void) {
+    if (!this->has_nickname())
+        reply(ERR_NONICKNAMEGIVEN, ":You must choose a nickname before registering");
+    else if (!this->get_username().empty() && !this->get_realname().empty()) {
+        _registered = true;
+        this->reply(RPL_WELCOME, ":Welcome to the Internet Relay Network " + this->get_nickname() + "!" + this->get_username() + "@" + this->get_hostname());        
     }
-    _authenticated = true;
     return ;
 }
 
 void        Client::oper(std::string oper_password) {
-    // compare the password
-    if (oper_password == g_oper_password) {
+    if (oper_password == g_oper_password)
         _oper = true;
-    }
     return ;
 }
 
@@ -92,28 +96,52 @@ void        Client::unOper(void) {
     return ;
 }
 
+/******************************************************************************/
+/*                    Member functions: Message handling                      */
+/******************************************************************************/
+
 void        Client::reply(std::string code, std::string message) {
-    // Concatenate the message and send it to the client
+    // Server->Client reply
+    std::string hostname_str;
     std::string code_str;
     std::string nickname_str;
-    std::string command_str;
 
+    hostname_str = ":" + _server_hostname + SPACE;
     code_str = code.empty() ? "" : code + SPACE;
     nickname_str = _nickname.empty() ? "unregistered " : _nickname + SPACE;
     
+    // Format ":<server_hostname> <code> <nickname> :<message>\r\n"
     std::string reply;
-    reply = ":" + _server_hostname + SPACE + code_str + nickname_str + message + CRLF;
+    reply = hostname_str + code_str + nickname_str + message + CRLF;
 
-    std::cout << "Sending reply to " << _nickname << "@" << _hostname << ":" << _port << ": " << reply << std::endl;
+    // Server log
+    if (g_logs)
+        std::cout << "Reply: " << reply << std::endl;
 
+    // Send reply to client
     send(_socket, reply.c_str(), reply.length(), 0);
     return ;
 }
 
-void        Client::broadcast(Client *sender, std::string target, std::string message) {
-    // Concatenate the message and send it to the client
-    std::string reply = ":" + sender->get_nickname() + SPACE + "PRIVMSG" + SPACE + target + ":" + _server_hostname + SPACE + ":" + message + CRLF;
-    std::cout << "Broadcasting message to " << target << ": " << reply << std::endl;
+void        Client::broadcast(Client *sender, std::string command, std::string target, std::string message) {
+    // Client->Client or Client->Channel broadcast
+    std::string sender_str;
+    std::string command_str;
+    std::string target_str;
+    std::string message_str;
+    
+    sender_str = ":" + sender->get_nickname() + "!" + sender->get_username() + "@" + sender->get_hostname() + SPACE;
+    command_str = command + SPACE;
+    target_str = target + SPACE;
+    message_str = command == "KICK" || command == "INVITE" || message.empty() || message[0] == ':' ? message : ":" + message;
+    
+    // Format ":<sender> <command> <target> :<message>\r\n"
+    std::string reply = sender_str + command_str + target_str + message_str + CRLF;
+
+    // Server log
+    if (g_logs)
+        std::cout << "Broadcast: " << reply << std::endl;
+
     send(_socket, reply.c_str(), reply.length(), 0);
     return ;
 }
@@ -158,12 +186,12 @@ bool        Client::is_authenticated(void) const {
     return _authenticated;
 }
 
-bool        Client::is_oper(void) const {
-    return _oper;
-}
-
 bool        Client::is_registered(void) const {
     return _registered;
+}
+
+bool        Client::is_oper(void) const {
+    return _oper;
 }
 
 bool        Client::has_nickname(void) const {
@@ -175,7 +203,7 @@ bool        Client::has_nickname(void) const {
 /******************************************************************************/
 
 void        Client::set_nickname(const std::string &nickname) {
-    reply(RPL_NEWNICK, ":Nickname set to <" + nickname + ">");
+    reply(RPL_NEWNICK, ":Nickname set to " + nickname);
     _nickname = nickname;
     return ;
 }
@@ -187,10 +215,5 @@ void        Client::set_username(const std::string &username) {
 
 void        Client::set_realname(const std::string &realname) {
     _realname = realname;
-    return ;
-}
-
-void        Client::set_registered(bool registered) {
-    _registered = registered;
     return ;
 }

@@ -32,16 +32,17 @@ void Topic::invoke(Client *client, Message *message) {
     if (client->is_authenticated() && client->is_registered()) {
         // Check if message has enough parameters
         if (message->get_params().size() == 0) {
-            client->reply(ERR_NEEDMOREPARAMS, ":Not enough parameters");
+            client->reply(ERR_NEEDMOREPARAMS, ":Not enough parameters for TOPIC command");
             return ;
         }
 
         std::string channel_name = message->get_params()[0];
+        std::string client_name = client->get_nickname();
         
         // Check if channel exists
         Channel *channel = _server->get_channel(channel_name);
         if (channel == NULL) {
-            client->reply(ERR_NOSUCHCHANNEL, ":No such channel [" + channel_name + "]");
+            client->reply(ERR_NOSUCHCHANNEL, ":No channel " + channel_name);
             return ;
         }
 
@@ -52,16 +53,13 @@ void Topic::invoke(Client *client, Message *message) {
         }
 
         // Check if client has permission to change topic
-        if(channel->get_topic_restriction() && message->get_params().size() == 2) {
-            if (!client->is_oper() && !channel->is_chanop(client->get_nickname())) {
-                client->reply(ERR_CHANOPRIVSNEEDED, channel->get_name() + SPACE + "Cannot set topic. You're not channel operator");
-                return ;
-            }
+        if(message->get_params().size() == 2 && channel->get_topic_restriction() && !channel->is_chanop(client_name)) {
+            client->reply(ERR_CHANOPRIVSNEEDED, channel->get_name() + SPACE + "Cannot set topic. You're not channel operator");
+            return ;
         }
 
         channel->topic(client, message->get_params());
-    }
-    else {
+    } else {
         client->reply(ERR_NOTREGISTERED, ":You have not registered");
     }
 }

@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 22:36:12 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/25 15:40:32 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/26 13:05:50 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,12 +68,6 @@ void    User::invoke(Client *client, Message *message) {
     // Register the user
     client->set_username(username);
     client->set_realname(realname);
-    if (client->has_nickname())
-        client->set_registered(true);
-
-    if (client->is_registered())
-        client->reply(RPL_WELCOME, ":Welcome to the Internet Relay Network " + client->get_nickname() + "!" + client->get_username() + "@" + client->get_hostname());
-    else 
-        client->reply(ERR_NOPRIVILEGES, ":You must choose a nickname before registering.");
+    client->register_client();
     return ;
 }
