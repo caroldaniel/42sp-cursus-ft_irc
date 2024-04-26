@@ -432,6 +432,8 @@ Implementation
 
 ### Authentication and registration
 
+![HexChat](./img/003.png)
+
 The first thing the client does when connecting to the server is to authenticate. `HexChat`, specifically, sends the following messages to the server:
 
 ```
@@ -483,9 +485,14 @@ Once the client is properly authenticated and registered, the server must respon
 
 ### General Commands 
 
+
 We are (obviously) not going to implement the entire IRC protocol. That would be a nightmare.
 
 However, some commands are mandatory for our project's success. Others, just very welcome.
+
+![Join](./img/004.png)
+
+![List](./img/005.png)
 
 #### JOIN
 
@@ -528,6 +535,8 @@ However, some commands are mandatory for our project's success. Others, just ver
 > The `QUIT` command is used to disconnect the client from the server. The client sends the `QUIT` command to the server, and the server must respond with the appropriate replies. In `HexChat`, it's a way to disconnect from the server.
 
 ### Commands specific to channels
+
+![Privmsg](./img/006.png)
 
 #### MODE
 
@@ -576,6 +585,8 @@ Yes, really.
 
 Just try it. Send a file to a friend in a private chat. It's that simple.
 
+![File Transfer](./img/009.png)
+
 That's only possible because file transfers in `HexChat` do not go over to the server. They are handled directly by the clients. The server must be able to handle the commands, but it does not need to send replies regarding the FTP. 
 
 Easy peasy.
@@ -587,5 +598,9 @@ Regular bots are usually implemented as separate clients, with their own sockets
 Did we want to develop a whole client? Hell no.
 
 So, we chose to implement a bot that is part of the server. It is, most specifically, dealt in the Commands class, and implemented as a separate Client object. Nothing too fancy, but it does its job pretty well. 
+
+![Bot](./img/007.png)
+
+![Bot](./img/008.png)
 
 Now, if you want to grow on it, expand its capabilities, choose to connect to APIs and so on, maybe an in-server bot is not the best choice. But for the project's sake, it's more than enough.
