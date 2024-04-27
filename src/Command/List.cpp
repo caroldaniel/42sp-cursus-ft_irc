@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 10:16:12 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/26 19:34:44 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/27 19:18:33 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,7 @@ void    List::invoke(Client *client, Message *message) {
                 std::string channel_name = (*it)->get_name();
                 std::stringstream user_count;
                 user_count << (*it)->get_clients().size();
-                std::string channel_topic = (*it)->get_topic().empty() ? ":No topic set" : ":" + (*it)->get_topic();
+                std::string channel_topic = (*it)->get_topic().empty() ? ":No topic set" : (*it)->get_topic();
                 list_content = channel_name + SPACE + user_count.str() + SPACE + channel_topic;                        
                 client->reply(RPL_LIST, list_content);
             }
