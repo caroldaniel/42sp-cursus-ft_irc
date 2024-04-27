@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 09:47:16 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/27 17:38:55 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/27 18:52:55 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,20 @@ Channel::~Channel(void) {
 /******************************************************************************/
 
 Channel &Channel::operator=(const Channel &other) {
-    *this = other;
+    this->_name = other._name;
+    this->_hostname = other._hostname;
+    this->_topic = other._topic;
+    this->_key = other._key;
+    this->_user_limit = other._user_limit;
+    this->_user_quantity = other._user_quantity;
+    this->_clients = other._clients;
+    this->_op_clients = other._op_clients;
+    this->_invited_clients = other._invited_clients;
+    this->_topic_restriction = other._topic_restriction;
+    this->_invite_only = other._invite_only;
+    this->_has_key = other._has_key;
+    this->_has_bot = other._has_bot;
+    this->_has_user_limit = other._has_user_limit;
     return *this;
 }
 

@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 22:04:27 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/06 18:18:59 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/27 18:55:56 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,7 +39,9 @@ Message::~Message(void) {
 /******************************************************************************/
 
 Message &Message::operator=(const Message &other) {
-    *this = other;
+    this->_prefix = other._prefix;
+    this->_command = other._command;
+    this->_params = other._params;
     return *this;
 }
 

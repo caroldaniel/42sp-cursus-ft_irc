@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 14:25:23 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/26 12:41:00 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/27 18:53:39 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,18 @@ Client::~Client(void) {
 /******************************************************************************/
 
 Client &Client::operator=(const Client &other) {
-    *this = other;
+    this->_server_hostname = other._server_hostname;
+    this->_socket = other._socket;
+    this->_port = other._port;
+    this->_password = other._password;
+    this->_disconnected = other._disconnected;
+    this->_authenticated = other._authenticated;
+    this->_registered = other._registered;
+    this->_oper = other._oper;
+    this->_nickname = other._nickname;
+    this->_username = other._username;
+    this->_realname = other._realname;
+    this->_hostname = other._hostname;
     return *this;
 }
 

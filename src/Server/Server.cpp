@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 12:03:38 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/27 16:57:05 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/27 18:57:26 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -89,7 +89,17 @@ Server::~Server(void) {
 /******************************************************************************/
 
 Server                  &Server::operator=(const Server &other) {
-   *this = other;
+    this->_running = other._running;
+    this->_socket = other._socket;
+    this->_port = other._port;
+    this->_password = other._password;
+    this->_hostname = other._hostname;
+    this->_oper_password = other._oper_password;
+    this->_info = other._info;
+    this->_pollfds = other._pollfds;
+    this->_clients = other._clients;
+    this->_channels = other._channels;
+    this->_commands = other._commands;
     return *this;
 }
 

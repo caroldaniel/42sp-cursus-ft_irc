@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 12:03:43 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/26 18:45:22 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/27 18:57:47 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,11 +33,11 @@ private:
     bool                                _running;
     int                                 _socket;
     
-    const std::string                   _port;
-    const std::string                   _password;
-    const std::string                   _hostname;
-    const std::string                   _oper_password;
-    const std::string                   _info;
+    std::string                         _port;
+    std::string                         _password;
+    std::string                         _hostname;
+    std::string                         _oper_password;
+    std::string                         _info;
 
     std::vector<pollfd>                 _pollfds;
     std::map<int, Client *>             _clients;

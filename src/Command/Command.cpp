@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 21:11:57 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/26 19:41:31 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/27 18:58:24 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,7 +34,8 @@ Command::~Command(void) {
 /******************************************************************************/
 
 Command &Command::operator=(const Command &other) {
-    *this = other;
+    this->_name = other._name;
+    this->_server = other._server;
     return *this;
 }
 
