@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 09:47:16 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/26 16:53:52 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/27 17:38:55 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,6 @@ Channel &Channel::operator=(const Channel &other) {
 
 void    Channel::join(Client *client) {
     this->_clients.push_back(client);
-    this->_user_quantity++;
     this->broadcast(client, "JOIN", this->get_name(), "");
     return ;
 }
@@ -202,7 +201,7 @@ void     Channel::set_mode(char mode, std::vector<std::string> params, Client *c
             break;
         case 'k':
             if (params.size() < 3) {
-                client->reply(ERR_NEEDMOREPARAMS, channel_name + SPACE + ":Not enough parameters");
+                client->reply(ERR_NEEDMOREPARAMS, channel_name + SPACE + ":Must set key");
                 break ;
             }
             _key = params[2];
@@ -223,7 +222,7 @@ void     Channel::set_mode(char mode, std::vector<std::string> params, Client *c
             // Check if limit is greater than 0
             limit = std::atoi(limit_param.c_str());
             if (limit < 1) {
-                client->reply(ERR_UNKNOWNMODE, channel_name + SPACE + ":Unknown mode char");
+                client->reply(ERR_UNKNOWNMODE, channel_name + SPACE + ":Limit must be greater than 0");
                 break ;
             }
             this->_has_user_limit = true;
@@ -462,5 +461,10 @@ void                Channel::set_topic(const std::string topic) {
 
 void                Channel::set_bot(bool has_bot) {
     this->_has_bot = has_bot;
+    return ;
+}
+
+void               Channel::increase_user_quantity(void) {
+    this->_user_quantity++;
     return ;
 }

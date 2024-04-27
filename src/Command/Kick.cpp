@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/20 23:06:58 by dofranci          #+#    #+#             */
-/*   Updated: 2024/04/26 15:46:19 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/27 17:49:01 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,7 @@ void Kick::invoke(Client *client, Message *message) {
         }
 
         // Check if the client has the necessary permissions to kick
-        if (!client->is_oper() && channel->get_chanop_names().find(client->get_nickname()) == std::string::npos) {
+        if (!channel->is_chanop(client->get_nickname())) {
             client->reply(ERR_NOPRIVILEGES, channel->get_name() + SPACE + ":Permission Denied");
             return ;
         }

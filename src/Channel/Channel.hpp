@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 09:47:13 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/26 16:01:17 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/27 17:38:26 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,7 @@ public:
     // Setters
     void                    set_topic(const std::string topic);
     void                    set_bot(bool has_bot);
+    void                    increase_user_quantity(void);
 };
 
 #endif

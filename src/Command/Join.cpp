@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/12 15:00:57 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/26 11:09:50 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/27 17:39:19 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,7 @@ void Join::invoke(Client *client, Message *message) {
             client->reply(ERR_NOSUCHCHANNEL, ":No such channel. Creating channel " + channel_name);
             channel = new Channel(channel_name, _server->get_hostname());
             _server->add_channel(channel);
+            channel->increase_user_quantity();
             channel->join(client);
             channel->add_chanop(client);
         }
@@ -73,6 +74,7 @@ void Join::invoke(Client *client, Message *message) {
                 client->reply(ERR_CHANNELISFULL, channel->get_name() + SPACE + ":Cannot join channel (+l)");
                 return;
             }
+            channel->increase_user_quantity();
             channel->join(client);
         }
 

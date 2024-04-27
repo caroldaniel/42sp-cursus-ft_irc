@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/22 18:30:04 by dofranci          #+#    #+#             */
-/*   Updated: 2024/04/26 15:46:19 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/27 17:49:32 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,13 +51,13 @@ void Invite::invoke(Client *client, Message *message) {
             return ;
         }
 
+        Client *target = _server->get_client(message->get_params()[0]);
+        
         // Check if the client has the necessary permissions to invite
-        if (!client->is_oper() && !channel->is_chanop(client->get_nickname())) {
-            client->reply(ERR_CHANOPRIVSNEEDED, ":You're not channel " + channel_name + " operator");
+        if (!channel->is_chanop(client->get_nickname())) {
+            client->reply(ERR_NOPRIVILEGES, channel->get_name() + SPACE + ":Permission Denied");
             return ;
         }
-
-        Client *target = _server->get_client(message->get_params()[0]);
         
         // Check if the target exists
         if (target == NULL) {
