@@ -83,7 +83,7 @@ void Join::invoke(Client *client, Message *message) {
         channel->names(client);
     }
     else {
-        client->reply(ERR_NOTREGISTERED, " :You have not registered");
+        client->reply(ERR_NOTREGISTERED, ":You have not registered");
     }
     return;
 }

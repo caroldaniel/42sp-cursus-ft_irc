@@ -66,7 +66,7 @@ void Bot::invoke(Client *client, Message *message) {
         channel->set_bot(true);
     }
     else {
-        client->reply(ERR_NOTREGISTERED, " :You have not registered");
+        client->reply(ERR_NOTREGISTERED, ":You have not registered");
     }
     return ;
 }
