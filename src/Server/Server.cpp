@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 12:03:38 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/27 18:57:26 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/27 22:35:20 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -333,7 +333,7 @@ void                    Server::start(void) {
             }
             // If the client received a HUP event, disconnect it
             if ((_pollfds[i].revents & POLLHUP) == POLLHUP)
-                _clients.find(_pollfds[i].fd)->second->disconnect("Server disconnected due to HUP event");
+                _clients.find(_pollfds[i].fd)->second->disconnect("Client disconnected due to HUP event");
             
             // If the client received any data, manage it
             if ((_pollfds[i].revents & POLLIN) == POLLIN) {
