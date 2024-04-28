@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 14:25:23 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/27 18:53:39 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/28 19:11:12 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,8 @@ Client::Client(std::string server_hostname, int fd, int port, std::string passwo
     _nickname(""), 
     _username(""), 
     _realname(""), 
-    _hostname(hostname) {
+    _hostname(hostname),
+    _message_buffer("") {
 
     std::cout << "Client on " << _hostname << ":" << _port << " created" << std::endl;
     return ;
@@ -189,6 +190,10 @@ std::string Client::get_hostname(void) const {
     return _hostname;
 }
 
+std::string Client::get_buffer(void) const {
+    return _message_buffer;
+}
+
 bool        Client::is_disconnected(void) const {
     return _disconnected;
 }
@@ -226,5 +231,16 @@ void        Client::set_username(const std::string &username) {
 
 void        Client::set_realname(const std::string &realname) {
     _realname = realname;
+    return ;
+}
+
+void        Client::set_buffer(std::string message) {
+    this->_message_buffer += message;
+    std::cout << "Buffer for " << this->get_nickname() << ": " << _message_buffer << std::endl;
+    return ;
+}
+
+void        Client::clear_buffer(void) {
+    this->_message_buffer.clear();
     return ;
 }

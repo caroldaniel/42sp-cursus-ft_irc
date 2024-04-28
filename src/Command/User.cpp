@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/10 22:36:12 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/26 20:02:18 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/28 19:27:52 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,15 +33,15 @@ void    User::invoke(Client *client, Message *message) {
     std::string username;
     std::string realname;
 
-    // Check if client has a nickname
-    if (message->get_params().size() < 4) {
-        client->disconnect("Server disconnected due to registration failure");
-        return ;
-    }
-
     // Check if the user is already registered
     if (client->is_registered()) {
         client->reply(ERR_ALREADYREGISTRED, ":You may not reregister");
+        return ;
+    }
+
+    // Check if client has a nickname
+    if (message->get_params().size() < 4) {
+        client->disconnect("Server disconnected due to registration failure");
         return ;
     }
     

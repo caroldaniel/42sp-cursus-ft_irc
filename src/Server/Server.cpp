@@ -6,7 +6,7 @@
 /*   By: cado-car <cado-car@student.42sp.org.br>    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/03/06 12:03:38 by cado-car          #+#    #+#             */
-/*   Updated: 2024/04/27 22:35:20 by cado-car         ###   ########.fr       */
+/*   Updated: 2024/04/28 19:31:21 by cado-car         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -159,7 +159,6 @@ std::vector<Client *>   Server::list_clients(void) {
 /*                  Member functions on Client's actions                      */
 /******************************************************************************/
 
-
 void                    Server::on_client_connect(void) {
     // Prepare the client address structure    
     sockaddr_in  client_address;
@@ -205,25 +204,42 @@ void                    Server::on_client_disconnect(int client_fd) {
 }
 
 void                    Server::on_client_message(int client_fd, std::string message) {
-    
-    if (get_client(client_fd)->is_disconnected())
-        return ;
-        
-    // Parse line by line
-    std::istringstream  iss(message); 
-    std::string         line;
     Client              *client;
     Message             *msg;
     std::string         cmd;
+    std::istringstream  iss(message); 
+    std::string         line;
 
     client = get_client(client_fd);
 
+    // Get message and parse each line. Every command is a line ended by \r\n.
+    // If the message does not end with \r\n, it is not a complete command, and must be stored in a buffer on the Server object.
     while (std::getline(iss, line)) {
+    
         if (client->is_disconnected())
             break ;
-        if (g_logs)
-            std::cout << "Received from " << _clients[client_fd]->get_nickname() << ": " << line << std::endl;
+        
+        if (line.length() == 0)
+            continue ;
+        
+        // Check of line ends in \r\n
+        if (line.length() > 0 && line[line.length() - 1] != '\r') {
+            client->set_buffer(line);
+            continue ;
+        }
+
+        // If the line ends in \r, it is a complete command
         try {
+            // If there is a buffer, append it to the line and clear it
+            if (client->get_buffer().length() > 0) {
+                line = client->get_buffer() + line;
+                client->clear_buffer();
+            }
+            
+            // Print the message received
+            if (g_logs)
+                std::cout << "Received from " << _clients[client_fd]->get_nickname() << ": " << line;
+
             msg = new Message(line);
             cmd = msg->get_command();
             // Check if the command is known
@@ -302,7 +318,7 @@ void                    Server::start(void) {
         // If no events happened, continue
         if (poll_count == 0)
             continue;
-        
+
         // Check if the server socket has events
         if (_pollfds[0].revents & POLLIN) {
             try {
