@@ -15,9 +15,9 @@
 <h2>
 	Final score
 </h2>
-<img src="" alt="cado-car's 42Project Score"/>
+<img src="https://github.com/caroldaniel/caroldaniel-utils/blob/ee12f3a44b18d5b62decaf669adb01eef5a09bab/ft_irc_grade.png" alt="cado-car's 42Project Score"/>
 <h4>Completed + Bonus</h4>
-<img src="" alt="cado-car's 42Project Badge"/>
+<img src="https://github.com/caroldaniel/caroldaniel-utils/blob/ee12f3a44b18d5b62decaf669adb01eef5a09bab/ft_ircm.png" alt="cado-car's 42Project Badge"/>
 </div>
 
 ---
